@@ -28,7 +28,7 @@ cd frontend
 npm run dev
 ```
 
-### 4. Prisma Studio (Ambiente gráico)
+### 4. Prisma Studio (Ambiente gráfico)
 ```bash
 cd backend
 npx prisma studio
