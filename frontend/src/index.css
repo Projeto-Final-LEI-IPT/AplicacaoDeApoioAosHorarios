@@ -8,6 +8,60 @@ html, body, #root {
   height: 100%;
 }
 
+/* Placeholder dos inputs com cor mais suave */
 input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #6b6767;
+}
+
+/* Coluna das horas */
+.hora-slot {
+  width: 120px !important;
+  min-width: 120px !important;
+}
+
+
+/* Borda exterior da grelha com cantos arredondados */
+.fc .fc-scrollgrid {
+  border: 2px solid #000 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Borda inferior e direita do cabeçalho dos dias da semana */
+.fc .fc-col-header-cell {
+  border-right: 1px solid #000 !important;
+  border-bottom: 2px solid #000 !important;
+  padding: 10px 0 !important;
+}
+
+/* Borda inferior de cada slot de 30 minutos */
+.fc .fc-timegrid-slot {
+  border-bottom: 1px solid #000 !important;
+}
+
+/* Borda direita de cada coluna de dia */
+.fc .fc-timegrid-col {
+  border-right: 1px solid #000 !important;
+}
+
+/* Coluna das horas — largura fixa e borda direita de separação */
+.fc .fc-timegrid-slot-label {
+  width: 80px !important; 
+  min-width: 80px !important;
+  border-right: 2px solid #000 !important; 
+  vertical-align: middle;
+}
+
+/* Nome do dia da semana centrado no cabeçalho */
+.fc .fc-col-header-cell-cushion {
+  display: block !important;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0 !important;
+  white-space: nowrap;
+}
+
+/* Remover highlight do dia atual */
+.fc .fc-day-today {
+  background: transparent !important;
 }
