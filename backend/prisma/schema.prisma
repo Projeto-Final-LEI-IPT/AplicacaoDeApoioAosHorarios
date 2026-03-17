@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -14,19 +8,126 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  email     String   @unique
-  password  String
-  role      Role     @default(DOCENTE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum Role {
   ADMIN
   COMISSAO_ESCOLA
   COMISSAO_CURSO
   DOCENTE
+}
+
+enum TipoCurso {
+  SEMESTRAL
+  MODULAR
+}
+
+enum DiaSemana {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  email     String     @unique
+  password  String
+  role      Role       @default(DOCENTE)
+  docente   Docente?
+  auditLogs AuditLog[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Docente {
+  id           Int           @id @default(autoincrement())
+  userId       Int           @unique
+  user         User          @relation(fields: [userId], references: [id])
+  nome         String
+  email        String        @unique
+  maxHorasDia  Int           @default(8)
+  blocos       Bloco[]
+  impedimentos Impedimento[]
+}
+
+model Curso {
+  id         Int                 @id @default(autoincrement())
+  nome       String
+  tipo       TipoCurso
+  anoLetivo  String
+  turmas     Turma[]
+  ucs        UnidadeCurricular[]
+  createdAt  DateTime            @default(now())
+}
+
+model UnidadeCurricular {
+  id            Int      @id @default(autoincrement())
+  cursoId       Int
+  curso         Curso    @relation(fields: [cursoId], references: [id])
+  nome          String
+  codigo        String
+  semestre      Int
+  horasContacto Int
+  blocos        Bloco[]
+}
+
+model Turma {
+  id        Int      @id @default(autoincrement())
+  cursoId   Int
+  curso     Curso    @relation(fields: [cursoId], references: [id])
+  nome      String
+  ano       Int
+  semestre  Int
+  blocos    Bloco[]
+}
+
+model Sala {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  capacidade   Int
+  tipo         String
+  blocos       Bloco[]
+  impedimentos Impedimento[]
+}
+
+model Bloco {
+  id         Int               @id @default(autoincrement())
+  ucId       Int
+  uc         UnidadeCurricular @relation(fields: [ucId], references: [id])
+  docenteId  Int
+  docente    Docente           @relation(fields: [docenteId], references: [id])
+  salaId     Int
+  sala       Sala              @relation(fields: [salaId], references: [id])
+  turmaId    Int
+  turma      Turma             @relation(fields: [turmaId], references: [id])
+  tipologia  String
+  dia        DiaSemana
+  horaInicio String
+  horaFim    String
+  createdAt  DateTime          @default(now())
+}
+
+model Impedimento {
+  id         Int       @id @default(autoincrement())
+  docenteId  Int?
+  docente    Docente?  @relation(fields: [docenteId], references: [id])
+  salaId     Int?
+  sala       Sala?     @relation(fields: [salaId], references: [id])
+  dia        DiaSemana
+  horaInicio String
+  horaFim    String
+  tipo       String
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  acao       String
+  entidade   String
+  entidadeId Int
+  detalhe    Json?
+  createdAt  DateTime @default(now())
 }
