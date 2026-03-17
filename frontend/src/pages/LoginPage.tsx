@@ -1,36 +1,45 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function LoginPage() {
+// Hook para navegação programática
+  const navigate = useNavigate()
+
+  // Estados para controlar os campos de email, password, mensagem de erro e hover do botão
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [hover, setHover] = useState(false)
 
+  // Função para validar os campos e simular o envio do formulário
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault?.()
     if (!email || !password) {
       setError('Preenche todos os campos')
       return
     }
-    setError('')
-    alert('Login enviado — backend ainda não ligado')
+
+    // Simulação de login bem-sucedido 
+    navigate('/horario')
+
   }
   
-
+{/* Formulário de login */}
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'url(/ipt_background.png) center center / cover no-repeat',
+      background: 'url(/background_right.png) right center / contain no-repeat', 
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: 'system-ui, sans-serif'
     }}>
+      
       <div style={{
-        background: 'rgba(7, 39, 9, 0.26)',
+        background: ' #66aa22cc',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        border: '1px solid rgba(255, 255, 255, 0.13)',
         borderRadius: '16px',
         padding: '48px',
         width: '100%',
@@ -38,10 +47,10 @@ export default function LoginPage() {
         boxShadow: '0 8px 32px rgba(152, 147, 147, 0)',
       }}>
 
-        {/* Logo / Título */}
+        {/* Logotipo do IPT + nome da aplicação */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
-            width: '150px', height: '100px',
+            width: '180px', height: '100px',
             background: 'rgba(255, 255, 255, 0.32)',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255,255,255,0.4)',
@@ -50,36 +59,41 @@ export default function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1.6rem'
           }}><img
-              src="/ipt_logo.png"
+              src="/ipt_logo.jpg"
               alt="IPT"
               style={{
-                width: '120px',
+                objectFit: 'cover',
+                height: '90px',
+                width: '170px',
+                borderRadius: '16px',
                 display: 'block',
               }}
             /></div>
-          <h1 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
+          <h1 style={{ color: '#000000', fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
              Planificação de Horários
           </h1>
         </div>
 
-        {/* Erro */}
+        {/* Erro ao enviar o formulário */}
         {error && (
           <div style={{
             background: '#ef444422',
-            border: '1px solid #ef4444',
+            border: '1px solid #ff0808',
             borderRadius: '8px',
             padding: '10px 14px',
-            color: '#ef4444',
+            color: '#ff0808',
             fontSize: '0.85rem',
+            fontWeight: '500',
+            textAlign: 'center',
             marginBottom: '20px'
           }}>
             {error}
           </div>
         )}
 
-        {/* Email */}
+        {/* Campo de Email */}
         <div style={{ marginBottom: '16px' }}>
-          <label style={{ color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+          <label style={{ color: '#000000', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
             EMAIL INSTITUCIONAL
           </label>
           <input
@@ -92,7 +106,7 @@ export default function LoginPage() {
               border: '1px solid rgba(255,255,255,0.3)',
               borderRadius: '8px',
               padding: '12px 14px',
-              color: '#fff',
+              color: '#000000',
               fontSize: '0.9rem',
               outline: 'none',
               boxSizing: 'border-box' as const,
@@ -101,9 +115,9 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Password */}
+        {/* Campo de Palavra-Passe */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
+          <label style={{ color: '#000000', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
             PALAVRA-PASSE
           </label>
           <input
@@ -116,7 +130,7 @@ export default function LoginPage() {
               border: '1px solid rgba(255,255,255,0.3)',
               borderRadius: '8px',
               padding: '12px 14px',
-              color: '#fff',
+              color: '#000000',
               fontSize: '0.9rem',
               outline: 'none',
               boxSizing: 'border-box' as const,
@@ -125,14 +139,14 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Botão */}
+        {/* Botão de Login */}
         <button
           onClick={handleSubmit}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           style={{
             width: '100%',
-            background: hover ? '#15803d' : '#16a34a',
+            background: hover ? '#000000' : '#000000cc',  
             transition: 'background 0.2s',  
             border: 'none',
             borderRadius: '8px',
