@@ -20,7 +20,7 @@ export default function NotFoundPage() {
         Página não encontrada
       </h1>
       <p style={{ color: 'rgba(0, 0, 0, 0.5)', marginBottom: '32px' }}>
-        A página que procurada não existe.
+        A página que está à procura não existe.
       </p>
       <button
         onClick={() => navigate('/horario')}
