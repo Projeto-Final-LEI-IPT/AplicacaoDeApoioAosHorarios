@@ -14,10 +14,38 @@ export default function LoginPage() {
   // Função para validar os campos e simular o envio do formulário
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault?.()
-    if (!email || !password) {
-      setError('Preenche todos os campos')
-      return
-    }
+     // Verificar se os campos estão preenchidos
+  if (!email || !password) {
+    setError('Preenche todos os campos')
+    return
+  }
+
+  // Validar formato do email institucional
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@ipt\.pt$/
+  if (!emailRegex.test(email)) {
+    setError('O email deve ter o formato utilizador@ipt.pt')
+    return
+  }
+
+  // Validar regras da password
+  if (password.length < 8) {
+    setError('A palavra-passe deve ter pelo menos 8 caracteres')
+    return
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    setError('A palavra-passe deve ter pelo menos uma letra maiúscula')
+    return
+  }
+
+  if (!/[0-9]/.test(password)) {
+    setError('A palavra-passe deve ter pelo menos um número')
+    return
+  }
+
+  // Limpar erro e simular login bem-sucedido
+  setError('')
+  navigate('/horario')
 
     // Simulação de login bem-sucedido 
     navigate('/horario')
