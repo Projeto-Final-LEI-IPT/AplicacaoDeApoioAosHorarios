@@ -2,8 +2,11 @@ import Sidebar from "../components/Sidebar"
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { useAuth } from '../hooks/useAuth'
 
 export default function HorarioPage() {
+  const { user } = useAuth()
+  console.log('Utilizador autenticado:', user)
   return (
     // Div principal que ocupa toda a altura disponível 
     <div style={{ 

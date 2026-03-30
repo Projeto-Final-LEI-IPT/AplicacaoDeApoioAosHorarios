@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 export default function LoginPage() {
 // Hook para navegação programática
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   // Estados para controlar os campos de email, password, mensagem de erro e hover do botão
   const [email, setEmail] = useState('')
@@ -12,15 +14,38 @@ export default function LoginPage() {
   const [hover, setHover] = useState(false)
 
   // Função para validar os campos e simular o envio do formulário
-  const handleSubmit = (e: React.MouseEvent) => {
+  const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault?.()
     if (!email || !password) {
       setError('Preenche todos os campos')
       return
     }
 
-    // Simulação de login bem-sucedido 
+    try {
+    // Faz o pedido ao backend
+    const response = await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      setError('Email ou palavra-passe incorretos')
+      return
+    }
+
+    // Usa a função do contexto
+    await login(data.access_token)
+
+    // Redireciona para a página de horários
+    setError('')
     navigate('/horario')
+
+  } catch {
+    setError('Erro ao ligar ao servidor. Tenta novamente.')
+  }
 
   }
   
@@ -36,7 +61,7 @@ export default function LoginPage() {
     }}>
       
       <div style={{
-        background: ' #66aa22cc',
+        background: ' #76BC21',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.13)',
