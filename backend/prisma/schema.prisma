@@ -43,8 +43,8 @@ model User {
 
 model Docente {
   id           Int           @id @default(autoincrement())
-  userId       Int           @unique
-  user         User          @relation(fields: [userId], references: [id])
+  userId       Int?           @unique
+  user         User?          @relation(fields: [userId], references: [id])
   nome         String
   email        String        @unique
   maxHorasDia  Int           @default(8)
