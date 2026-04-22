@@ -8,6 +8,7 @@ import { DocentesModule } from './docentes/docentes.module'
 import { CursosModule } from './cursos/cursos.module'
 import { UcsModule } from './ucs/ucs.module'
 import { TurmasModule } from './turmas/turmas.module'
+import { ImportacaoModule } from './importacao/importacao.module'
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TurmasModule } from './turmas/turmas.module'
     CursosModule,
     UcsModule,
     TurmasModule,
+    ImportacaoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
