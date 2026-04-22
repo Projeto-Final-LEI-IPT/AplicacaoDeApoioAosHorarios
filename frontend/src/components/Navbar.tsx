@@ -31,7 +31,10 @@ export default function Navbar() {
     }}>
 
       {/* Logotipo do IPT e nome da aplicação */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div 
+      onClick={() => navigate('/horario')}
+      style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor:"pointer" }}
+      >
         <img src="/ipt_logo.jpg" alt="IPT" style={{ height: '36px' }} />
         <span style={{
           color: '#fff',
