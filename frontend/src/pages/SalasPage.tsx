@@ -16,8 +16,10 @@ export default function SalasPage() {
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  // Obtém o token do localStorage para autenticar os pedidos
   const token = localStorage.getItem('token')
+
+  const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
+  const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
 
   // Carrega todas as salas quando a página é aberta
   useEffect(() => {
@@ -38,6 +40,11 @@ export default function SalasPage() {
       return
     }
 
+    if (salas.some(s => s.nome.toLowerCase() === nome.toLowerCase())) {
+      mostrarErro(`Já existe uma sala com o nome "${nome}"`)
+      return
+    }
+
     const response = await fetch('http://localhost:3000/salas', {
       method: 'POST',
       headers: {
@@ -52,14 +59,14 @@ export default function SalasPage() {
     })
 
     if (response.ok) {
-      setSucesso('Sala criada com sucesso')
-      setErro('')
+      mostrarSucesso('Sala criada com sucesso')
       setNome('')
       setCapacidade('')
       setTipo('')
       fetchSalas()
     } else {
-      setErro('Erro ao criar sala')
+      const data = await response.json()
+      mostrarErro(data.message || 'Erro ao criar sala')
     }
   }
 
@@ -70,10 +77,10 @@ export default function SalasPage() {
     })
 
     if (response.ok) {
-      setSucesso('Sala apagada com sucesso')
+      mostrarSucesso('Sala apagada com sucesso')
       fetchSalas()
     } else {
-      setErro('Erro ao apagar sala')
+      mostrarErro('Erro ao apagar sala')
     }
   }
 

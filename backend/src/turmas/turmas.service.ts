@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CreateTurmaDto } from './dto/create-turma.dto'
 import { UpdateTurmaDto } from './dto/update-turma.dto'
@@ -23,7 +23,15 @@ export class TurmasService {
   }
 
   // Cria uma nova turma
-  create(dto: CreateTurmaDto) {
+  async create(dto: CreateTurmaDto) {
+    const turmaExistente = await this.prisma.turma.findFirst({
+      where: { nome: dto.nome, cursoId: dto.cursoId },
+    })
+
+    if (turmaExistente) {
+      throw new ConflictException(`Já existe uma turma com o nome "${dto.nome}" neste curso`)
+    }
+
     return this.prisma.turma.create({
       data: {
         nome: dto.nome,

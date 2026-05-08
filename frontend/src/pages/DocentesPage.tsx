@@ -18,6 +18,9 @@ export default function DocentesPage() {
 
   const token = localStorage.getItem('token')
 
+  const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
+  const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
+
   // Carrega todos os docentes quando a página é aberta
   useEffect(() => {
     fetchDocentes()
@@ -33,7 +36,12 @@ export default function DocentesPage() {
 
   const handleCriar = async () => {
     if (!nome || !email) {
-      setErro('Preenche todos os campos obrigatórios')
+      mostrarErro('Preenche todos os campos obrigatórios')
+      return
+    }
+
+    if (docentes.some(d => d.email.toLowerCase() === email.toLowerCase())) {
+      mostrarErro(`Já existe um docente com o email "${email}"`)
       return
     }
 
@@ -51,14 +59,14 @@ export default function DocentesPage() {
     })
 
     if (response.ok) {
-      setSucesso('Docente criado com sucesso')
-      setErro('')
+      mostrarSucesso('Docente criado com sucesso')
       setNome('')
       setEmail('')
       setMaxHorasDia('8')
       fetchDocentes()
     } else {
-      setErro('Erro ao criar docente')
+      const data = await response.json()
+      mostrarErro(data.message || 'Erro ao criar docente')
     }
   }
 
@@ -69,10 +77,10 @@ export default function DocentesPage() {
     })
 
     if (response.ok) {
-      setSucesso('Docente apagado com sucesso')
+      mostrarSucesso('Docente apagado com sucesso')
       fetchDocentes()
     } else {
-      setErro('Erro ao apagar docente')
+      mostrarErro('Erro ao apagar docente')
     }
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, ConflictException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service.js'
 import { CreateSalaDto } from './dto/create-sala.dto'
 import { UpdateSalaDto } from './dto/update-sala.dto'
@@ -20,11 +20,20 @@ export class SalasService {
   }
 
   // Cria uma nova sala
-  create(dto: CreateSalaDto) {
-    return this.prisma.sala.create({
-      data: dto,
-    })
+async create(dto: CreateSalaDto) {
+  // Verifica se já existe uma sala com o mesmo nome
+  const salaExistente = await this.prisma.sala.findFirst({
+    where: { nome: dto.nome },
+  })
+
+  if (salaExistente) {
+    throw new ConflictException(`Já existe uma sala com o nome "${dto.nome}"`)
   }
+
+  return this.prisma.sala.create({
+    data: dto,
+  })
+}
 
   // Atualiza uma sala pelo id
   update(id: number, dto: UpdateSalaDto) {

@@ -30,6 +30,9 @@ export default function TurmasPage() {
 
   const token = localStorage.getItem('token')
 
+  const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
+  const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
+
   useEffect(() => {
     fetchTurmas()
     fetchCursos()
@@ -53,7 +56,12 @@ export default function TurmasPage() {
 
   const handleCriar = async () => {
     if (!nome || !cursoId) {
-      setErro('Preenche todos os campos obrigatórios')
+      mostrarErro('Preenche todos os campos obrigatórios')
+      return
+    }
+
+    if (turmas.some(t => t.nome.toLowerCase() === nome.toLowerCase() && t.curso.id === Number(cursoId))) {
+      mostrarErro(`Já existe uma turma com o nome "${nome}" neste curso`)
       return
     }
 
@@ -72,15 +80,15 @@ export default function TurmasPage() {
     })
 
     if (response.ok) {
-      setSucesso('Turma criada com sucesso')
-      setErro('')
+      mostrarSucesso('Turma criada com sucesso')
       setNome('')
       setAno('1')
       setSemestre('1')
       setCursoId('')
       fetchTurmas()
     } else {
-      setErro('Erro ao criar turma')
+      const data = await response.json()
+      mostrarErro(data.message || 'Erro ao criar turma')
     }
   }
 
@@ -91,10 +99,10 @@ export default function TurmasPage() {
     })
 
     if (response.ok) {
-      setSucesso('Turma apagada com sucesso')
+      mostrarSucesso('Turma apagada com sucesso')
       fetchTurmas()
     } else {
-      setErro('Erro ao apagar turma')
+      mostrarErro('Erro ao apagar turma')
     }
   }
 

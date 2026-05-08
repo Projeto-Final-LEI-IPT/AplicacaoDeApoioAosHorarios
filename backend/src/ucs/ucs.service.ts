@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CreateUcDto } from './dto/create-uc.dto'
 import { UpdateUcDto } from './dto/update-uc.dto'
@@ -23,7 +23,23 @@ export class UcsService {
   }
 
   // Cria uma nova UC
-  create(dto: CreateUcDto) {
+  async create(dto: CreateUcDto) {
+    const ucPorCodigo = await this.prisma.unidadeCurricular.findFirst({
+      where: { codigo: dto.codigo },
+    })
+
+    if (ucPorCodigo) {
+      throw new ConflictException(`Já existe uma UC com o código "${dto.codigo}"`)
+    }
+
+    const ucPorNome = await this.prisma.unidadeCurricular.findFirst({
+      where: { nome: dto.nome, cursoId: dto.cursoId },
+    })
+
+    if (ucPorNome) {
+      throw new ConflictException(`Já existe uma UC com o nome "${dto.nome}" neste curso`)
+    }
+
     return this.prisma.unidadeCurricular.create({
       data: {
         nome: dto.nome,

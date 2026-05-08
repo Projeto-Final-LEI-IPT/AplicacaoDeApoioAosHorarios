@@ -32,6 +32,9 @@ export default function UcsPage() {
 
   const token = localStorage.getItem('token')
 
+  const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
+  const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
+
   useEffect(() => {
     fetchUcs()
     fetchCursos()
@@ -55,7 +58,17 @@ export default function UcsPage() {
 
   const handleCriar = async () => {
     if (!nome || !codigo || !horasContacto || !cursoId) {
-      setErro('Preenche todos os campos obrigatórios')
+      mostrarErro('Preenche todos os campos obrigatórios')
+      return
+    }
+
+    if (ucs.some(u => u.codigo.toLowerCase() === codigo.toLowerCase())) {
+      mostrarErro(`Já existe uma UC com o código "${codigo}"`)
+      return
+    }
+
+    if (ucs.some(u => u.nome.toLowerCase() === nome.toLowerCase() && u.curso.id === Number(cursoId))) {
+      mostrarErro(`Já existe uma UC com o nome "${nome}" neste curso`)
       return
     }
 
@@ -75,8 +88,7 @@ export default function UcsPage() {
     })
 
     if (response.ok) {
-      setSucesso('UC criada com sucesso')
-      setErro('')
+      mostrarSucesso('UC criada com sucesso')
       setNome('')
       setCodigo('')
       setSemestre('1')
@@ -84,7 +96,8 @@ export default function UcsPage() {
       setCursoId('')
       fetchUcs()
     } else {
-      setErro('Erro ao criar UC')
+      const data = await response.json()
+      mostrarErro(data.message || 'Erro ao criar UC')
     }
   }
 
@@ -95,10 +108,10 @@ export default function UcsPage() {
     })
 
     if (response.ok) {
-      setSucesso('UC apagada com sucesso')
+      mostrarSucesso('UC apagada com sucesso')
       fetchUcs()
     } else {
-      setErro('Erro ao apagar UC')
+      mostrarErro('Erro ao apagar UC')
     }
   }
 

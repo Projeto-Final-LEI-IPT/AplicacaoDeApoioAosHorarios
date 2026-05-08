@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable,ConflictException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CreateDocenteDto } from './dto/create-docente.dto'
 import { UpdateDocenteDto } from './dto/update-docente.dto'
+
 
 @Injectable()
 export class DocentesService {
@@ -22,13 +23,33 @@ export class DocentesService {
     })
   }
 
-create(dto: CreateDocenteDto) {
+async create(dto: CreateDocenteDto) {
+  // Verifica se já existe um docente com o mesmo email
+  const docenteExistente = await this.prisma.docente.findFirst({
+    where: { email: dto.email },
+  })
+
+  if (docenteExistente) {
+    throw new ConflictException(`Já existe um docente com o email "${dto.email}"`)
+  }
+
+  // Cria o docente com ou sem userId
+  if (dto.userId) {
+    return this.prisma.docente.create({
+      data: {
+        nome: dto.nome,
+        email: dto.email,
+        maxHorasDia: dto.maxHorasDia ?? 8,
+        user: { connect: { id: dto.userId } },
+      },
+    })
+  }
+
   return this.prisma.docente.create({
     data: {
       nome: dto.nome,
       email: dto.email,
       maxHorasDia: dto.maxHorasDia ?? 8,
-      user: { connect: { id: dto.userId } },
     },
   })
 }
