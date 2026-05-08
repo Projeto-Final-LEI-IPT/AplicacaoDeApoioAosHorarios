@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import { PrivateRoute } from './components/PrivateRoute'
 import LoginPage from './pages/LoginPage.tsx'
 import MainLayout from './Layout/MainLayout.tsx'
+import GestaoLayout from './Layout/GestaoLayout.tsx'
 import PageNotFound from './pages/PageNotFound.tsx'
 import HorarioPage from './pages/HorarioPage.tsx'
 import SalasPage from './pages/SalasPage.tsx'
@@ -26,11 +27,13 @@ function App() {
             </PrivateRoute>
           }>
             <Route path="horario" element={<HorarioPage />} />
-            <Route path="salas" element={<SalasPage />} />
-            <Route path="importar" element={<ImportacaoPage />} />
-            <Route path="docentes" element={<DocentesPage />} />
-            <Route path="cursos" element={<UcsPage />} />
-            <Route path="turmas" element={<TurmasPage />} />
+            <Route element={<GestaoLayout />}>
+              <Route path="salas" element={<SalasPage />} />
+              <Route path="importar" element={<ImportacaoPage />} />
+              <Route path="docentes" element={<DocentesPage />} />
+              <Route path="cursos" element={<UcsPage />} />
+              <Route path="turmas" element={<TurmasPage />} />
+            </Route>
           </Route>
 
           {/* Página 404 */}

@@ -25,6 +25,8 @@ export default function Sidebar() {
 
   return (
     <div style={{
+      width: '180px',
+      flexShrink: 0,
       background: '#f1f5f9',
       padding: '8px 0',
       display: 'flex',
