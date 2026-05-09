@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common'
+import { Controller, Post, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { ImportacaoService } from './importacao.service'
@@ -13,5 +13,10 @@ export class ImportacaoController {
   @UseInterceptors(FileInterceptor('file'))
   async importar(@UploadedFile() file: Express.Multer.File) {
     return this.importacaoService.importarExcel(file.buffer)
+  }
+
+  @Delete()
+  async limpar() {
+    return this.importacaoService.limparDados()
   }
 }

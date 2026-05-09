@@ -125,4 +125,16 @@ export class ImportacaoService {
 
     return resultados
   }
+
+  async limparDados() {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.bloco.deleteMany({})
+      await tx.impedimento.deleteMany({})
+      await tx.unidadeCurricular.deleteMany({})
+      await tx.turma.deleteMany({})
+      await tx.curso.deleteMany({})
+      await tx.docente.deleteMany({})
+    })
+    return { mensagem: 'Dados eliminados com sucesso' }
+  }
 }
