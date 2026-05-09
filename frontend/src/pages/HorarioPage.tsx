@@ -2,12 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import Sidebar from "../components/Sidebar"
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
-<<<<<<< Updated upstream
-import interactionPlugin from '@fullcalendar/interaction'
-=======
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import { useAuth } from '../hooks/useAuth'
->>>>>>> Stashed changes
 
 interface UC {
   id: number
@@ -29,8 +25,6 @@ interface Turma {
 type Vista = 'turma' | 'docente' | 'sala'
 
 export default function HorarioPage() {
-<<<<<<< Updated upstream
-=======
   const { user } = useAuth()
   console.log('Utilizador autenticado:', user)
 
@@ -101,7 +95,6 @@ export default function HorarioPage() {
     sala: 'Sala',
   }
 
->>>>>>> Stashed changes
   return (
     <div style={{
       height: '100%',
