@@ -65,3 +65,23 @@ input::placeholder {
 .fc .fc-day-today {
   background: transparent !important;
 }
+
+/* Remove o padding interno padrão dos eventos */
+.fc .fc-timegrid-event .fc-event-main {
+  padding: 0 !important;
+}
+
+/* Remove o box-shadow branco padrão do FullCalendar que causa o offset à esquerda */
+.fc .fc-timegrid-event {
+  box-shadow: none !important;
+}
+
+/* Empurra o harness 1px para baixo para não sobrepor a linha da grelha no topo */
+.fc .fc-timegrid-event-harness {
+  margin-top: 1px !important;
+}
+
+/* Remove o margin 0 2.5% 0 2px padrão do FullCalendar que descentra os blocos */
+.fc .fc-timegrid-col-events {
+  margin: 0 !important;
+}
