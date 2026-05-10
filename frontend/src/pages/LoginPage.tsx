@@ -14,8 +14,8 @@ export default function LoginPage() {
   const [hover, setHover] = useState(false)
 
   // Função para validar os campos e simular o envio do formulário
-  const handleSubmit = async (e: React.MouseEvent) => {
-    e.preventDefault?.()
+  const handleSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
     if (!email || !password) {
       setError('Preenche todos os campos')
       return
@@ -167,13 +167,13 @@ export default function LoginPage() {
 
         {/* Botão de Login */}
         <button
-          onClick={handleSubmit}
+          type="submit"
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           style={{
             width: '100%',
-            background: hover ? '#000000' : '#000000cc',  
-            transition: 'background 0.2s',  
+            background: hover ? '#000000' : '#000000cc',
+            transition: 'background 0.2s',
             border: 'none',
             borderRadius: '8px',
             padding: '13px',
@@ -186,6 +186,7 @@ export default function LoginPage() {
         >
           ENTRAR
         </button>
+        </form>
 
       </div>
     </div>
