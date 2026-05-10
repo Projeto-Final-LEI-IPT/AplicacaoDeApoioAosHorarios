@@ -99,6 +99,7 @@ export default function LoginPage() {
           </h1>
         </div>
 
+        <form onSubmit={handleSubmit}>
         {/* Erro ao enviar o formulário */}
         {error && (
           <div style={{
