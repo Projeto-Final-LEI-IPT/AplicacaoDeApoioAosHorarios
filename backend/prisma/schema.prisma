@@ -121,6 +121,13 @@ model Impedimento {
   tipo       String
 }
 
+model FeriadoLocal {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  data      DateTime @db.Date
+  createdAt DateTime @default(now())
+}
+
 model AuditLog {
   id         Int      @id @default(autoincrement())
   userId     Int
