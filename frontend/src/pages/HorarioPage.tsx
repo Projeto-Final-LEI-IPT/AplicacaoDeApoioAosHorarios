@@ -37,8 +37,12 @@ export default function HorarioPage() {
   const [blocosColocados, setBlocosColocados] = useState<Set<string>>(new Set())
   const containerRef = useRef<HTMLDivElement>(null)
   const painelDireitoRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
   const BLOCOS_POR_PAGINA = 6
   const token = localStorage.getItem('token')
+  const [feriados, setFeriados] = useState<{ nome: string; data: string }[]>([])
+  const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
+  const [semanaLabel, setSemanaLabel] = useState('')
 
   useEffect(() => {
     const handleResize = () => setLarguraJanela(window.innerWidth)
@@ -57,6 +61,16 @@ export default function HorarioPage() {
     }
     fetchDados()
   }, [])
+
+  useEffect(() => {
+    const fetchFeriados = async () => {
+      const res = await fetch(`http://localhost:3000/feriados?ano=${anoAtual}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) setFeriados(await res.json())
+    }
+    fetchFeriados()
+  }, [anoAtual])
 
   // Inicializa o Draggable do FullCalendar no contentor dos blocos.
   // Re-inicializa sempre que a página ou os blocos colocados mudam (o DOM muda).
@@ -88,6 +102,30 @@ export default function HorarioPage() {
   const blocosPorAlocar = todosBlocos.filter(b => !blocosColocados.has(blocoKey(b.uc, b.turma)))
 
   const totalPaginas = Math.ceil(blocosPorAlocar.length / BLOCOS_POR_PAGINA)
+
+  const feriadosEvents = feriados.map(f => ({
+    start: `${f.data}T00:00:00`,
+    end: `${f.data}T24:00:00`,
+    display: 'background' as const,
+    color: '#fecaca',
+    extendedProps: { isFeriado: true, nome: f.nome },
+  }))
+
+  const irParaAnterior = () => calendarRef.current?.getApi().prev()
+  const irParaProximo = () => calendarRef.current?.getApi().next()
+  const irParaHoje = () => calendarRef.current?.getApi().today()
+
+  const navBtnStyle: React.CSSProperties = {
+    background: '#f1f5f9',
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    padding: '4px 8px',
+    fontSize: '0.85rem',
+    color: '#374151',
+    cursor: 'pointer',
+    fontWeight: 600,
+    lineHeight: 1,
+  }
 
   const vistaLabels: Record<Vista, string> = {
     turma: 'Turma',
@@ -179,15 +217,36 @@ export default function HorarioPage() {
                 <option key={c.id} value={c.id}>{c.nome}</option>
               ))}
             </select>
+
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button onClick={irParaAnterior} style={navBtnStyle}>‹</button>
+              <button onClick={irParaHoje} style={{ ...navBtnStyle, padding: '4px 10px', fontSize: '0.7rem' }}>Hoje</button>
+              <button onClick={irParaProximo} style={navBtnStyle}>›</button>
+              {semanaLabel && (
+                <span style={{ fontSize: '0.72rem', color: '#64748b', marginLeft: '4px', whiteSpace: 'nowrap' }}>
+                  {semanaLabel}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Grelha horária */}
           <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', padding: '0 12px 12px' }}>
             <FullCalendar
+              ref={calendarRef}
               plugins={[timeGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
               headerToolbar={false}
               allDaySlot={false}
+              events={feriadosEvents}
+              datesSet={(info) => {
+                const ano = info.start.getFullYear()
+                if (ano !== anoAtual) setAnoAtual(ano)
+                const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
+                const inicio = info.start.toLocaleDateString('pt-PT', opts)
+                const fim = new Date(info.end.getTime() - 86400000).toLocaleDateString('pt-PT', opts)
+                setSemanaLabel(`${inicio} – ${fim}`)
+              }}
               slotMinTime="08:00:00"
               slotMaxTime="24:00:00"
               slotDuration="00:30:00"
@@ -210,6 +269,26 @@ export default function HorarioPage() {
               locale="pt"
               firstDay={1}
               dayHeaderFormat={{ weekday: larguraJanela < 1000 ? 'short' : 'long' }}
+              dayHeaderContent={(arg) => {
+                const d = arg.date
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                const feriado = feriados.find(f => f.data === dateStr)
+                return (
+                  <div style={{ textAlign: 'center' }}>
+                    <div>{arg.text}</div>
+                    {feriado && (
+                      <div style={{ fontSize: '0.55rem', color: '#dc2626', fontWeight: 700, marginTop: '2px' }}>
+                        {feriado.nome}
+                      </div>
+                    )}
+                  </div>
+                )
+              }}
+              eventAllow={(dropInfo) => {
+                const d = dropInfo.start
+                const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                return !feriados.some(f => f.data === dateStr)
+              }}
               hiddenDays={[0]}
               editable={true}
               droppable={true}
@@ -238,6 +317,7 @@ export default function HorarioPage() {
                 }
               }}
               eventContent={(arg) => {
+                if (arg.event.extendedProps.isFeriado) return <></>
                 const { ucId, turmaId, ucNome, turmaNome } = arg.event.extendedProps
                 const remover = (e: React.MouseEvent) => {
                   e.stopPropagation()
