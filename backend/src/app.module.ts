@@ -9,6 +9,7 @@ import { CursosModule } from './cursos/cursos.module'
 import { UcsModule } from './ucs/ucs.module'
 import { TurmasModule } from './turmas/turmas.module'
 import { ImportacaoModule } from './importacao/importacao.module'
+import { FeriadosModule } from './feriados/feriados.module'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ImportacaoModule } from './importacao/importacao.module'
     UcsModule,
     TurmasModule,
     ImportacaoModule,
+    FeriadosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
