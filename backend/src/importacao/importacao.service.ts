@@ -25,6 +25,11 @@ export class ImportacaoService {
 
       for (const row of rows) {
         try {
+          const existe = await this.prisma.curso.findFirst({
+            where: { nome: row['Nome'], anoLetivo: row['Ano Letivo'] },
+          })
+          if (existe) continue
+
           await this.prisma.curso.create({
             data: {
               nome: row['Nome'],
@@ -46,6 +51,11 @@ export class ImportacaoService {
 
       for (const row of rows) {
         try {
+          const existe = await this.prisma.docente.findFirst({
+            where: { email: row['Email'] },
+          })
+          if (existe) continue
+
           await this.prisma.docente.create({
             data: {
               nome: row['Nome'],
@@ -75,6 +85,11 @@ export class ImportacaoService {
             resultados.erros.push(`Curso não encontrado para turma: ${row['Nome']}`)
             continue
           }
+
+          const existe = await this.prisma.turma.findFirst({
+            where: { nome: row['Nome'], cursoId: curso.id },
+          })
+          if (existe) continue
 
           await this.prisma.turma.create({
             data: {
@@ -106,6 +121,11 @@ export class ImportacaoService {
             resultados.erros.push(`Curso não encontrado para UC: ${row['Nome']}`)
             continue
           }
+
+          const existe = await this.prisma.unidadeCurricular.findFirst({
+            where: { codigo: row['Código'] },
+          })
+          if (existe) continue
 
           await this.prisma.unidadeCurricular.create({
             data: {
