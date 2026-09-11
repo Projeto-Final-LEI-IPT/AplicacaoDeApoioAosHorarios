@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import Sidebar from "../components/Sidebar"
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -31,14 +31,12 @@ export default function HorarioPage() {
   const [larguraJanela, setLarguraJanela] = useState(window.innerWidth)
   const [ucs, setUcs] = useState<UC[]>([])
   const [turmas, setTurmas] = useState<Turma[]>([])
-  const [pagina, setPagina] = useState(0)
   const [vista, setVista] = useState<Vista>('turma')
   const [filtroCurso, setFiltroCurso] = useState('')
   const [blocosColocados, setBlocosColocados] = useState<Set<string>>(new Set())
   const containerRef = useRef<HTMLDivElement>(null)
   const painelDireitoRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
-  const BLOCOS_POR_PAGINA = 6
   const token = localStorage.getItem('token')
   const [feriados, setFeriados] = useState<{ nome: string; data: string }[]>([])
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
@@ -81,13 +79,7 @@ export default function HorarioPage() {
       eventData: (el) => JSON.parse(el.getAttribute('data-event') || '{}'),
     })
     return () => draggable.destroy()
-  }, [pagina, blocosColocados])
-
-  // Repõe a página se ficar fora dos limites após remover blocos
-  useEffect(() => {
-    const total = Math.ceil(blocosPorAlocar.length / BLOCOS_POR_PAGINA)
-    if (pagina > 0 && pagina >= total) setPagina(total - 1)
-  })
+  }, [blocosColocados])
 
   const cursos = Array.from(new Map(ucs.map(u => [u.curso.id, u.curso])).values())
 
@@ -101,16 +93,14 @@ export default function HorarioPage() {
 
   const blocosPorAlocar = todosBlocos.filter(b => !blocosColocados.has(blocoKey(b.uc, b.turma)))
 
-  const totalPaginas = Math.ceil(blocosPorAlocar.length / BLOCOS_POR_PAGINA)
-
-  const feriadosEvents = feriados.map(f => ({
+  const feriadosEvents = useMemo(()=> feriados.map(f => ({
     start: `${f.data}T00:00:00`,
     end: `${f.data}T24:00:00`,
     display: 'background' as const,
     color: '#fecaca',
     extendedProps: { isFeriado: true, nome: f.nome },
-  }))
-
+  })),[feriados])
+  
   const irParaAnterior = () => calendarRef.current?.getApi().prev()
   const irParaProximo = () => calendarRef.current?.getApi().next()
   const irParaHoje = () => calendarRef.current?.getApi().today()
@@ -385,7 +375,7 @@ export default function HorarioPage() {
                       {ucNome}
                     </div>
 
-                    {/* Turma pill — alinhada ao fundo */}
+                    {/* Turma — alinhada ao fundo */}
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       <span style={{
                         background: 'rgba(255,255,255,0.15)',
@@ -448,7 +438,7 @@ export default function HorarioPage() {
           </div>
 
           {/* Lista de blocos — ref para o Draggable */}
-          <div ref={containerRef} style={{ padding: '12px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <div ref={containerRef} style={{ padding: '12px', flex: 1, minHeight: 0, overflow: 'auto' }}>
             {blocosPorAlocar.length === 0 ? (
               <p style={{
                 color: '#94a3b8',
@@ -463,7 +453,6 @@ export default function HorarioPage() {
               </p>
             ) : (
               blocosPorAlocar
-                .slice(pagina * BLOCOS_POR_PAGINA, (pagina + 1) * BLOCOS_POR_PAGINA)
                 .map((bloco) => {
                   const duracaoHoras = Math.max(1, Math.round(bloco.uc.horasContacto / 14))
                   const dataEvent = JSON.stringify({
@@ -518,55 +507,6 @@ export default function HorarioPage() {
                 })
             )}
           </div>
-
-          {/* Navegação por páginas */}
-          {blocosPorAlocar.length > 0 && (
-            <div style={{
-              borderTop: '1px solid #e2e8f0',
-              padding: '10px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexShrink: 0,
-              fontFamily: 'system-ui, sans-serif',
-            }}>
-              <button
-                onClick={() => setPagina(p => p - 1)}
-                disabled={pagina === 0}
-                style={{
-                  background: pagina === 0 ? '#e2e8f0' : '#16a34a',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  color: pagina === 0 ? '#94a3b8' : '#fff',
-                  fontSize: '0.85rem',
-                  cursor: pagina === 0 ? 'not-allowed' : 'pointer',
-                  fontWeight: 600,
-                }}
-              >
-                ‹
-              </button>
-              <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                {pagina + 1} / {totalPaginas}
-              </span>
-              <button
-                onClick={() => setPagina(p => p + 1)}
-                disabled={pagina >= totalPaginas - 1}
-                style={{
-                  background: pagina >= totalPaginas - 1 ? '#e2e8f0' : '#16a34a',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  color: pagina >= totalPaginas - 1 ? '#94a3b8' : '#fff',
-                  fontSize: '0.85rem',
-                  cursor: pagina >= totalPaginas - 1 ? 'not-allowed' : 'pointer',
-                  fontWeight: 600,
-                }}
-              >
-                ›
-              </button>
-            </div>
-          )}
         </div>
 
       </div>
