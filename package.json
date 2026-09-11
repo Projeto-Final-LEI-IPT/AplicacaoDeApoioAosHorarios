@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "dev": "docker-compose up -d && concurrently -n \"backend,frontend,studio\" -c \"blue,green,magenta\" \"npm run backend\" \"npm run frontend\" \"npm run studio\"",
+    "backend": "npm --prefix backend run start:dev",
+    "frontend": "npm --prefix frontend run dev",
+    "studio": "npx prisma studio --schema=backend/prisma/schema.prisma"
+  },
   "devDependencies": {
+    "concurrently": "^9.0.0",
     "prisma": "^6.7.0"
   }
 }
