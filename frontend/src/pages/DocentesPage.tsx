@@ -8,6 +8,11 @@ interface Docente {
   maxHorasDia: number
 }
 
+const verifyEmail = (email: string) => {
+  return email.endsWith('@ipt.pt')
+}
+
+
 export default function DocentesPage() {
   const [docentes, setDocentes] = useState<Docente[]>([])
   const [nome, setNome] = useState('')
@@ -37,6 +42,11 @@ export default function DocentesPage() {
   const handleCriar = async () => {
     if (!nome || !email) {
       mostrarErro('Preenche todos os campos obrigatórios')
+      return
+    }
+
+    if (!verifyEmail(email)) {
+      mostrarErro('Por favor, insira um email que termine com "@ipt.pt"')
       return
     }
 
