@@ -3,8 +3,8 @@ import { AuthService } from './auth.service'
 
 // DTO com os campos necessários para o login
 class LoginDto {
-  email: string
-  password: string
+  email!: string
+  password!: string
 }
 
 @Controller('auth')
