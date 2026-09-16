@@ -3,6 +3,7 @@ import { DiaSemana } from '@prisma/client';
 import {PrismaService} from '../../prisma/prisma.service';
 import {CreateBlocoDto} from './dto/create-bloco.dto';
 import {UpdateBlocoDto} from './dto/update-bloco.dto';
+import { create } from 'domain';
 
 @Injectable()
 export class BlocosService {
@@ -31,14 +32,18 @@ export class BlocosService {
             });
         }
 
-        update(id: number, updateBlocoDto: UpdateBlocoDto) {
+        update(id: number, dto: UpdateBlocoDto) {
+            const DIAS_SEMANA : DiaSemana[] = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO']
             return this.prisma.bloco.update({
                 where: { id },
-                data: updateBlocoDto,
+                data: {
+                    ...dto,
+                    ...(dto.data ? { data: new Date(dto.data), dia: DIAS_SEMANA[new Date(dto.data).getDay() - 1] } : {}),
+                },
             });
         }
 
-        async create(dto: CreateBlocoDto) {
+        create(dto: CreateBlocoDto) {
             const DIAS_SEMANA : DiaSemana[] = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO']
             return this.prisma.bloco.create({
                 data: {

@@ -148,11 +148,13 @@ useEffect(() => {
     extendedProps: { isFeriado: true, nome: f.nome },
   })),[feriados])
 
-  const blocosGravadosEvents = useMemo(()=> blocosGravados.map(b => ({
+  const blocosGravadosEvents = useMemo(()=> blocosGravados
+  .filter(b => filtroCurso === '' || b.uc.cursoId === Number(filtroCurso))
+  .map(b => ({
     start: `${b.data.split('T')[0]}T${b.horaInicio}`,
     end:`${b.data.split('T')[0]}T${b.horaFim}`,
     extendedProps: {blocoId: b.id, ucId: b.uc.id, ucNome: b.uc.nome, turmaId: b.turma.id, turmaNome: b.turma.nome, docente: b.docente.nome, sala: b.sala.nome}
-  })),[blocosGravados])
+  })),[blocosGravados, filtroCurso])
   
   const irParaAnterior = () => calendarRef.current?.getApi().prev()
   const irParaProximo = () => calendarRef.current?.getApi().next()
@@ -350,6 +352,29 @@ useEffect(() => {
                 eventoPendenteRef.current = info.event
 
               }}
+              
+
+              eventDrop={(info) => {
+                const { blocoId } = info.event.extendedProps
+                if (!blocoId) return
+
+                const novaData = info.event.startStr.split('T')[0]
+                const novaHoraInicio = info.event.startStr.split('T')[1].slice(0, 5)
+                const novaHoraFim = info.event.endStr.split('T')[1].slice(0, 5)
+
+                fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    data: novaData,
+                    horaInicio: novaHoraInicio,
+                    horaFim: novaHoraFim,
+                  }),
+                }).then(() => fetchBlocos())
+              }}
 
               eventDragStop={(info) => {
                 if (!painelDireitoRef.current) return
@@ -506,15 +531,15 @@ useEffect(() => {
                      
                     <select style={{ marginRight: '2px'}} value={tipologiaEscolhida} onChange={e => setTipologiaEscolhida(e.target.value)}>
                       <option value="">Selecione a tipologia</option>
-                      <option value="Teórica">Teórica</option>
-                      <option value="Prática">Prática Laboratorial</option>
-                      <option value="Prática">Teórico-Prática</option>
-                      <option value="Prática">Seminário</option>
-                      <option value="Prática">Trabalho de Campo</option>
-                      <option value="Prática">Orientação Tutorial</option>
-                      <option value="Prática">Estágio</option>
-                      <option value="Prática">Outras</option>
-                      <option value="Prática">Contacto</option>
+                      <option value="">Teórica</option>
+                      <option value="">Prática Laboratorial</option>
+                      <option value="">Teórico-Prática</option>
+                      <option value="">Seminário</option>
+                      <option value="">Trabalho de Campo</option>
+                      <option value="">Orientação Tutorial</option>
+                      <option value="">Estágio</option>
+                      <option value="">Outras</option>
+                      <option value="">Contacto</option>
                     </select>
 
                     <select style={{ marginRight: '2px' }} value={docenteEscolhido} onChange={e => setDocenteEscolhido(e.target.value)}>
@@ -552,7 +577,11 @@ useEffect(() => {
                       })
                       eventoPendenteRef.current?.remove()
                       await fetchBlocos()
+                      setTipologiaEscolhida('')
+                      setDocenteEscolhido('')
+                      setSalaEscolhida('')
                       setDialogAberto(false)
+
                     }}>
                       Confirmar
                     </button>
@@ -565,7 +594,12 @@ useEffect(() => {
                           return next
                         })
                       }
+                      setTipologiaEscolhida('')
+                      setDocenteEscolhido('')
+                      setSalaEscolhida('') 
                       setDialogAberto(false)
+
+
                     }}>
                       Cancelar
                     </button>
