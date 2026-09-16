@@ -64,14 +64,16 @@ export default function HorarioPage() {
   const [tipologiaEscolhida, setTipologiaEscolhida] = useState('')
   const [docenteEscolhido, setDocenteEscolhido] = useState('')
   const [salaEscolhida, setSalaEscolhida] = useState('')
+  const [feriados, setFeriados] = useState<{ nome: string; data: string }[]>([])
+  const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
+  const [semanaLabel, setSemanaLabel] = useState('')
+  const [filtroEntidade, setFiltroEntidade] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
   const painelDireitoRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
   const eventoPendenteRef = useRef<any>(null)
   const token = localStorage.getItem('token')
-  const [feriados, setFeriados] = useState<{ nome: string; data: string }[]>([])
-  const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
-  const [semanaLabel, setSemanaLabel] = useState('')
+  
 
 
   useEffect(() => {
@@ -150,11 +152,18 @@ useEffect(() => {
 
   const blocosGravadosEvents = useMemo(()=> blocosGravados
   .filter(b => filtroCurso === '' || b.uc.cursoId === Number(filtroCurso))
+  .filter(b => {
+    if (filtroEntidade === '') return true
+    if (vista === 'turma') return b.turma.id === Number(filtroEntidade)
+    if (vista === 'docente') return b.docente.id === Number(filtroEntidade)
+    if (vista === 'sala') return b.sala.id === Number(filtroEntidade)
+  return true
+})
   .map(b => ({
     start: `${b.data.split('T')[0]}T${b.horaInicio}`,
     end:`${b.data.split('T')[0]}T${b.horaFim}`,
     extendedProps: {blocoId: b.id, ucId: b.uc.id, ucNome: b.uc.nome, turmaId: b.turma.id, turmaNome: b.turma.nome, docente: b.docente.nome, sala: b.sala.nome}
-  })),[blocosGravados, filtroCurso])
+  })),[blocosGravados, filtroCurso, filtroEntidade, vista])
   
   const irParaAnterior = () => calendarRef.current?.getApi().prev()
   const irParaProximo = () => calendarRef.current?.getApi().next()
@@ -224,7 +233,7 @@ useEffect(() => {
             {(['turma', 'docente', 'sala'] as Vista[]).map(v => (
               <button
                 key={v}
-                onClick={() => setVista(v)}
+                onClick={() => {setVista(v); setFiltroEntidade('')}}
                 style={{
                   background: vista === v ? '#16a34a' : '#f1f5f9',
                   border: 'none',
@@ -240,6 +249,32 @@ useEffect(() => {
                 {vistaLabels[v]}
               </button>
             ))}
+
+            <select
+              value={filtroEntidade}
+              onChange={e => setFiltroEntidade(e.target.value)}
+              style={{
+                background: '#f1f5f9',
+                border: '1px solid #e2e8f0',
+                width: '140px',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.75rem',
+                color: '#111',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="">Todos</option>
+              {vista === 'turma' && turmas.map(t => (
+                <option key={t.id} value={t.id}>{t.nome}</option>
+              ))}
+              {vista === 'docente' && docentes.map(d => (
+                <option key={d.id} value={d.id}>{d.nome}</option>
+              ))}
+              {vista === 'sala' && salas.map(s => (
+                <option key={s.id} value={s.id}>{s.nome}</option>
+              ))}
+            </select>
 
             <div style={{ width: '1px', height: '18px', background: '#e2e8f0', margin: '0 4px' }} />
 
@@ -257,6 +292,7 @@ useEffect(() => {
                 cursor: 'pointer',
               }}
             >
+              {/* Opção "Todos" para não filtrar por curso */}
               <option value="">Todos</option>
               {cursos.map(c => (
                 <option key={c.id} value={c.id}>{c.nome}</option>
