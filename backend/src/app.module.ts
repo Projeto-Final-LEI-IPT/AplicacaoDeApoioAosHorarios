@@ -11,6 +11,7 @@ import { TurmasModule } from './turmas/turmas.module'
 import { ImportacaoModule } from './importacao/importacao.module'
 import { FeriadosModule } from './feriados/feriados.module'
 import { BlocosModule } from './blocos/blocos.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { BlocosModule } from './blocos/blocos.module'
     TurmasModule,
     ImportacaoModule,
     FeriadosModule,
-    BlocosModule
+    BlocosModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

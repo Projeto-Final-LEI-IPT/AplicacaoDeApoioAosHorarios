@@ -11,6 +11,7 @@ import ImportacaoPage from './pages/ImportacaoPage.tsx'
 import DocentesPage from './pages/DocentesPage.tsx'
 import UcsPage from './pages/UcsPage.tsx'
 import TurmasPage from './pages/TurmasPage.tsx'
+import UsersPage from './pages/UsersPage.tsx'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
               <Route path="docentes" element={<DocentesPage />} />
               <Route path="cursos" element={<UcsPage />} />
               <Route path="turmas" element={<TurmasPage />} />
+              <Route path="utilizadores" element={<UsersPage />} />
             </Route>
           </Route>
 
