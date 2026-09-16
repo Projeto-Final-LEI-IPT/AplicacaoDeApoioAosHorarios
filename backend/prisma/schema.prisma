@@ -103,6 +103,7 @@ model Bloco {
   turmaId    Int
   turma      Turma             @relation(fields: [turmaId], references: [id])
   tipologia  String
+  data       DateTime          @db.Date
   dia        DiaSemana
   horaInicio String
   horaFim    String

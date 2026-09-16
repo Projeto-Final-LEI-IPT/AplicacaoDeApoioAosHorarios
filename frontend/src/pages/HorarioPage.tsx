@@ -22,6 +22,28 @@ interface Turma {
   curso: { id: number; nome: string }
 }
 
+interface Sala {
+  id: number
+  nome: string
+}
+
+interface Docente {
+  id: number
+  nome: string
+}
+
+interface Bloco {
+  id: number
+  tipologia: string
+  data: string
+  horaInicio: string
+  horaFim: string
+  uc: any
+  docente: any
+  sala: any
+  turma: any 
+}
+
 type Vista = 'turma' | 'docente' | 'sala'
 
 export default function HorarioPage() {
@@ -34,13 +56,23 @@ export default function HorarioPage() {
   const [vista, setVista] = useState<Vista>('turma')
   const [filtroCurso, setFiltroCurso] = useState('')
   const [blocosColocados, setBlocosColocados] = useState<Set<string>>(new Set())
+  const [blocosGravados, setBlocosGravados] = useState<Bloco[]>([])
+  const [docentes, setDocentes] = useState<Docente[]>([])
+  const [salas, setSalas] = useState<Sala[]>([])
+  const [dialogAberto, setDialogAberto] = useState(false)
+  const [dadosDrop, setDadosDrop] = useState<{ ucId: number; turmaId: number; ucNome: string; turmaNome: string; dataDrop : string; horaInicio:string ; horaFim:string} | null>(null)
+  const [tipologiaEscolhida, setTipologiaEscolhida] = useState('')
+  const [docenteEscolhido, setDocenteEscolhido] = useState('')
+  const [salaEscolhida, setSalaEscolhida] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
   const painelDireitoRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
+  const eventoPendenteRef = useRef<any>(null)
   const token = localStorage.getItem('token')
   const [feriados, setFeriados] = useState<{ nome: string; data: string }[]>([])
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
   const [semanaLabel, setSemanaLabel] = useState('')
+
 
   useEffect(() => {
     const handleResize = () => setLarguraJanela(window.innerWidth)
@@ -50,15 +82,29 @@ export default function HorarioPage() {
 
   useEffect(() => {
     const fetchDados = async () => {
-      const [ucsRes, turmasRes] = await Promise.all([
+      const [ucsRes, turmasRes, salasRes, docentesRes] = await Promise.all([
         fetch('http://localhost:3000/ucs', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('http://localhost:3000/turmas', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('http://localhost:3000/salas', {headers: { Authorization: `Bearer ${token}` }}),
+        fetch('http://localhost:3000/docentes', {headers:{ Authorization: `Bearer ${token}` }})
       ])
       setUcs(await ucsRes.json())
       setTurmas(await turmasRes.json())
+      setSalas(await salasRes.json())
+      setDocentes(await docentesRes.json())
     }
     fetchDados()
   }, [])
+
+const fetchBlocos = async () => {
+  const res = await fetch('http://localhost:3000/blocos', { headers: { Authorization: `Bearer ${token}` } })
+  const dados = await res.json()
+  setBlocosGravados(dados)
+}
+
+useEffect(() => {
+  fetchBlocos()
+}, [])
 
   useEffect(() => {
     const fetchFeriados = async () => {
@@ -69,6 +115,7 @@ export default function HorarioPage() {
     }
     fetchFeriados()
   }, [anoAtual])
+
 
   // Inicializa o Draggable do FullCalendar no contentor dos blocos.
   // Re-inicializa sempre que a página ou os blocos colocados mudam (o DOM muda).
@@ -100,6 +147,12 @@ export default function HorarioPage() {
     color: '#fecaca',
     extendedProps: { isFeriado: true, nome: f.nome },
   })),[feriados])
+
+  const blocosGravadosEvents = useMemo(()=> blocosGravados.map(b => ({
+    start: `${b.data.split('T')[0]}T${b.horaInicio}`,
+    end:`${b.data.split('T')[0]}T${b.horaFim}`,
+    extendedProps: {blocoId: b.id, ucId: b.uc.id, ucNome: b.uc.nome, turmaId: b.turma.id, turmaNome: b.turma.nome, docente: b.docente.nome, sala: b.sala.nome}
+  })),[blocosGravados])
   
   const irParaAnterior = () => calendarRef.current?.getApi().prev()
   const irParaProximo = () => calendarRef.current?.getApi().next()
@@ -228,7 +281,7 @@ export default function HorarioPage() {
               initialView="timeGridWeek"
               headerToolbar={false}
               allDaySlot={false}
-              events={feriadosEvents}
+              events={[...feriadosEvents, ...blocosGravadosEvents]}
               datesSet={(info) => {
                 const ano = info.start.getFullYear()
                 if (ano !== anoAtual) setAnoAtual(ano)
@@ -284,9 +337,20 @@ export default function HorarioPage() {
               droppable={true}
               eventOverlap={false}
               eventReceive={(info) => {
-                const { ucId, turmaId } = info.event.extendedProps
+                
+                const { ucId, turmaId , ucNome, turmaNome } = info.event.extendedProps
                 setBlocosColocados(prev => new Set([...prev, `${ucId}-${turmaId}`]))
+                
+                const dataDrop = info.event.startStr.split('T')[0]
+                const horaInicio = info.event.startStr.split('T')[1].slice(0, 5)
+                const horaFim = info.event.endStr.split('T')[1].slice(0, 5)
+
+                setDadosDrop({ ucId, turmaId, ucNome, turmaNome, dataDrop, horaInicio, horaFim })
+                setDialogAberto(true)
+                eventoPendenteRef.current = info.event
+
               }}
+
               eventDragStop={(info) => {
                 if (!painelDireitoRef.current) return
                 const rect = painelDireitoRef.current.getBoundingClientRect()
@@ -297,18 +361,28 @@ export default function HorarioPage() {
                   ev.clientY >= rect.top &&
                   ev.clientY <= rect.bottom
                 ) {
-                  const { ucId, turmaId } = info.event.extendedProps
+                  const { ucId, turmaId, blocoId } = info.event.extendedProps
+                  console.log('DragStop:', { ucId, turmaId, blocoId })
                   info.event.remove()
                   setBlocosColocados(prev => {
                     const next = new Set(prev)
                     next.delete(`${ucId}-${turmaId}`)
                     return next
                   })
+                  if(blocoId){
+                    fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`},
+                    })
+                    setBlocosGravados(prev => prev.filter(b => b.id !== blocoId))
+                  }
                 }
               }}
+
               eventContent={(arg) => {
                 if (arg.event.extendedProps.isFeriado) return <></>
-                const { ucId, turmaId, ucNome, turmaNome } = arg.event.extendedProps
+                const { ucId, turmaId, ucNome, turmaNome, blocoId } = arg.event.extendedProps
                 const remover = (e: React.MouseEvent) => {
                   e.stopPropagation()
                   arg.event.remove()
@@ -317,6 +391,15 @@ export default function HorarioPage() {
                     next.delete(`${ucId}-${turmaId}`)
                     return next
                   })
+                  if(blocoId){
+                    fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`
+                      }
+                    })
+                    setBlocosGravados(prev => prev.filter(b => b.id !== blocoId))
+                  }
                 }
                 return (
                   <div style={{
@@ -395,6 +478,103 @@ export default function HorarioPage() {
               }}
               eventColor="#16a34a"
             />
+
+            {dialogAberto && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 1000,
+              }}>
+                {dadosDrop && (
+                  <div style={{
+                    background: '#fff',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    fontFamily: 'system-ui, sans-serif',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                  }}>
+                    <p>UC: {dadosDrop.ucNome}</p>
+                    <p>Turma: {dadosDrop.turmaNome}</p>
+                    <p>Data: {dadosDrop.dataDrop}</p>
+                     
+                    <select style={{ marginRight: '2px'}} value={tipologiaEscolhida} onChange={e => setTipologiaEscolhida(e.target.value)}>
+                      <option value="">Selecione a tipologia</option>
+                      <option value="Teórica">Teórica</option>
+                      <option value="Prática">Prática Laboratorial</option>
+                      <option value="Prática">Teórico-Prática</option>
+                      <option value="Prática">Seminário</option>
+                      <option value="Prática">Trabalho de Campo</option>
+                      <option value="Prática">Orientação Tutorial</option>
+                      <option value="Prática">Estágio</option>
+                      <option value="Prática">Outras</option>
+                      <option value="Prática">Contacto</option>
+                    </select>
+
+                    <select style={{ marginRight: '2px' }} value={docenteEscolhido} onChange={e => setDocenteEscolhido(e.target.value)}>
+                      <option value="">Selecione o docente</option>
+                      {docentes.map(d => (
+                        <option key={d.id} value={d.id}>{d.nome}</option>
+                      ))}
+                    </select>
+
+                    <select style={{ marginRight: '15px' }} value={salaEscolhida} onChange={e => setSalaEscolhida(e.target.value)}>
+                      <option value="">Selecione a sala</option>
+                      {salas.map(s => (
+                        <option key={s.id} value={s.id}>{s.nome}</option>
+                      ))}
+                    </select>
+
+                    <button style={{ marginRight: '15px', fontFamily: 'system-ui, sans-serif' , padding: '4px 4px'}} onClick={async () => {
+                      if (!dadosDrop) return
+                      await fetch('http://localhost:3000/blocos', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                          ucId: dadosDrop.ucId,
+                          turmaId: dadosDrop.turmaId,
+                          tipologia: tipologiaEscolhida,
+                          docenteId: Number(docenteEscolhido),
+                          salaId: Number(salaEscolhida),
+                          data: dadosDrop.dataDrop,
+                          horaInicio: dadosDrop.horaInicio,
+                          horaFim: dadosDrop.horaFim,
+                        }),
+                      })
+                      eventoPendenteRef.current?.remove()
+                      await fetchBlocos()
+                      setDialogAberto(false)
+                    }}>
+                      Confirmar
+                    </button>
+                    <button style={{ fontFamily: 'system-ui, sans-serif', padding: '4px 4px' }} onClick={() => {
+                      eventoPendenteRef.current?.remove()
+                      if (dadosDrop) {
+                        setBlocosColocados(prev => {
+                          const next = new Set(prev)
+                          next.delete(`${dadosDrop.ucId}-${dadosDrop.turmaId}`)
+                          return next
+                        })
+                      }
+                      setDialogAberto(false)
+                    }}>
+                      Cancelar
+                    </button>
+
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         </div>
 
@@ -459,6 +639,7 @@ export default function HorarioPage() {
                     title: bloco.uc.nome,
                     duration: `${String(duracaoHoras).padStart(2, '0')}:00:00`,
                     color: '#16a34a',
+                    // extendedProps são propriedades adicionais que podemos associar ao evento, para depois as usarmos no eventContent ou noutros callbacks do FullCalendar.
                     extendedProps: {
                       ucId: bloco.uc.id,
                       turmaId: bloco.turma.id,

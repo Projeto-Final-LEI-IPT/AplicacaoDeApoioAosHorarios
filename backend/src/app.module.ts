@@ -10,6 +10,7 @@ import { UcsModule } from './ucs/ucs.module'
 import { TurmasModule } from './turmas/turmas.module'
 import { ImportacaoModule } from './importacao/importacao.module'
 import { FeriadosModule } from './feriados/feriados.module'
+import { BlocosModule } from './blocos/blocos.module'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FeriadosModule } from './feriados/feriados.module'
     TurmasModule,
     ImportacaoModule,
     FeriadosModule,
+    BlocosModule
   ],
   controllers: [AppController],
   providers: [AppService],
