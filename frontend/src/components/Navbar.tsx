@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 export default function Navbar() {
+  const { user } = useAuth()  // Obtém o utilizador autenticado do contexto de autenticação
+  
   // Hook para navegação programática
   const navigate = useNavigate()
 
@@ -50,7 +53,7 @@ export default function Navbar() {
           color: '#fff',
           fontSize: '1rem',
         }}>
-          Administrador
+          Utilizador autenticado ( {user?.nome} )
         </span>
         <button
           onClick={handleLogout}

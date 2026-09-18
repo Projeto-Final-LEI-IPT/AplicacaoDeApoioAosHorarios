@@ -29,7 +29,7 @@ export class AuthService {
     }
 
     // Gera e devolve o token JWT com o id, email e role do utilizador
-    const payload = { sub: user.id, email: user.email, role: user.role }
+    const payload = { sub: user.id, email: user.email, role: user.role, nome: user.nome }
     return {
       access_token: this.jwtService.sign(payload),
     }

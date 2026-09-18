@@ -3,8 +3,11 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { UsersService } from "./users.service";
 import { UpdateUsersDto } from "./dto/update-users.dto";
 import { CreateUsersDto } from "./dto/create-users.dto";
+import { RolesGuard } from "../auth/roles.guard";
+import { Roles } from "../auth/roles.decorator";
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard , RolesGuard)
+@Roles('ADMIN')
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}

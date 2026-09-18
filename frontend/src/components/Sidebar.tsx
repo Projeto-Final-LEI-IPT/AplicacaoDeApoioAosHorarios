@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 // Lista de itens do menu lateral com a label visível e o path da rota correspondente
 const menuItems = [
@@ -9,11 +10,14 @@ const menuItems = [
   { label: 'Docentes', path: '/docentes' },
   { label: 'Salas', path: '/salas' },
   { label: 'Turmas', path: '/turmas' },
-  { label: 'Utilizadores', path: '/utilizadores' },
+  { label: 'Utilizadores', path: '/utilizadores', rolesPermitidas: ['ADMIN'] },
   { label: 'Auditoria', path: '/auditoria' },
 ]
 
 export default function Sidebar() {
+  // Obtém o utilizador autenticado do contexto de autenticação
+  const { user } = useAuth()
+
   // Navegar para outra página ao clicar num item do menu
   const navigate = useNavigate()
 
@@ -22,6 +26,9 @@ export default function Sidebar() {
 
   // Estado para controlar qual item do menu está a ser passado com o rato (hover)
   const [hoveredPath, setHoveredPath] = useState<string | null>(null)
+
+  const itensVisiveis = menuItems.filter(
+    item => !item.rolesPermitidas || item.rolesPermitidas.includes(user?.role ?? ''))
 
   return (
     <div style={{
@@ -37,7 +44,7 @@ export default function Sidebar() {
     }}>
 
        {/* Renderiza um botão para cada item do menu */}
-      {menuItems.map(item => {
+      {itensVisiveis.map(item => {
         // Verifica se este item corresponde à página atual
         const ativo = location.pathname === item.path
 

@@ -38,6 +38,10 @@ export default function UsersPage() {
     const response = await fetch('http://localhost:3000/users', {
       headers: { Authorization: `Bearer ${token}` },
     })
+    if (!response.ok) {
+      mostrarErro('Erro ao carregar utilizadores')
+      return
+    }
     const data = await response.json()
     setUtilizadores(data)
   }
