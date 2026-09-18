@@ -11,7 +11,7 @@ const menuItems = [
   { label: 'Salas', path: '/salas' },
   { label: 'Turmas', path: '/turmas' },
   { label: 'Utilizadores', path: '/utilizadores', rolesPermitidas: ['ADMIN'] },
-  { label: 'Auditoria', path: '/auditoria' },
+  { label: 'Auditoria', path: '/auditoria', rolesPermitidas: ['ADMIN'] },
 ]
 
 export default function Sidebar() {
