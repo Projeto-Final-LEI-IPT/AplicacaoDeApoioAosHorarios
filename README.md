@@ -43,7 +43,14 @@ cd backend
 npx prisma migrate deploy
 ```
 
-### 5. Correr tudo de uma vez (backend + frontend + Prisma Studio)
+### 5. Criar um utilizador ADMIN inicial (opcional, mas recomendado)
+```bash
+cd backend
+npx prisma db seed
+```
+Cria o utilizador `admin@ipt.pt`, com a password definida em `SEED_ADMIN_PASSWORD` no `.env` (ou `Admin123!` por omissão).
+
+### 6. Correr tudo de uma vez (backend + frontend + Prisma Studio)
 Na raiz do projeto:
 ```bash
 npm run dev
