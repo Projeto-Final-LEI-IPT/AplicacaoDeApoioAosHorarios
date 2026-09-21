@@ -9,7 +9,14 @@ Projeto Final — Instituto Politécnico de Tomar
 - **Tempo real:** Socket.io
 - **Infraestrutura:** Docker
 
-## Como correr o projeto
+
+## Como correr a stack do projeto num só comando
+
+```bash
+npm run dev
+```
+
+## Como correr o projeto por partes
 
 ### 1. Instalar dependências
 ```bash
