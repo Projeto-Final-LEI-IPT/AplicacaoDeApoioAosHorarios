@@ -3,11 +3,11 @@ import { DiaSemana } from '@prisma/client';
 import {PrismaService} from '../../prisma/prisma.service';
 import {CreateBlocoDto} from './dto/create-bloco.dto';
 import {UpdateBlocoDto} from './dto/update-bloco.dto';
-import { create } from 'domain';
+import { BlocosGateway } from './blocos.gateway';
 
 @Injectable()
 export class BlocosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly blocosGateway: BlocosGateway) {}
 
     findAll() {
         return this.prisma.bloco.findMany({
@@ -32,20 +32,22 @@ export class BlocosService {
             });
         }
 
-        update(id: number, dto: UpdateBlocoDto) {
+        async update(id: number, dto: UpdateBlocoDto) {
             const DIAS_SEMANA : DiaSemana[] = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO']
-            return this.prisma.bloco.update({
+            const atualizaBloco = await this.prisma.bloco.update({
                 where: { id },
-                data: {
-                    ...dto,
+                data: {...dto,
                     ...(dto.data ? { data: new Date(dto.data), dia: DIAS_SEMANA[new Date(dto.data).getDay() - 1] } : {}),
                 },
+                  include: { uc: true, docente: true, turma: true, sala: true },
             });
+            this.blocosGateway.emitirBlocoAtualizado(atualizaBloco);
+            return atualizaBloco;
         }
 
-        create(dto: CreateBlocoDto) {
+        async create(dto: CreateBlocoDto) {
             const DIAS_SEMANA : DiaSemana[] = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO']
-            return this.prisma.bloco.create({
+            const novoBloco = await this.prisma.bloco.create({
                 data: {
                     uc:{ connect: { id: dto.ucId }},
                     docente:{ connect: { id: dto.docenteId } },
@@ -56,13 +58,19 @@ export class BlocosService {
                     dia: DIAS_SEMANA[new Date(dto.data).getDay() - 1],
                     horaInicio: dto.horaInicio,
                     horaFim: dto.horaFim,
-                }
-            });
+                },
+                  include: { uc: true, docente: true, turma: true, sala: true },
+
+            })
+            this.blocosGateway.emitirBlocoCriado(novoBloco);
+            return novoBloco;
         }
         
-        remove(id: number) {
-            return this.prisma.bloco.delete({
+        async remove(id: number) {
+            const apagaBloco = await this.prisma.bloco.delete({
                 where: { id },
             });
+            this.blocosGateway.emitirBlocoApagado(id);
+            return apagaBloco;
         }
     }

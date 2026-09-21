@@ -3,7 +3,10 @@ import Sidebar from "../components/Sidebar"
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
+import {io} from 'socket.io-client'
 import { useAuth } from '../hooks/useAuth'
+
+
 
 interface UC {
   id: number
@@ -47,8 +50,6 @@ interface Bloco {
 type Vista = 'turma' | 'docente' | 'sala'
 
 export default function HorarioPage() {
-  const { user } = useAuth()
-  console.log('Utilizador autenticado:', user)
 
   const [larguraJanela, setLarguraJanela] = useState(window.innerWidth)
   const [ucs, setUcs] = useState<UC[]>([])
@@ -73,15 +74,18 @@ export default function HorarioPage() {
   const calendarRef = useRef<FullCalendar>(null)
   const eventoPendenteRef = useRef<any>(null)
   const token = localStorage.getItem('token')
-  
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
 
 
+// Atualiza a largura da janela sempre que o utilizador redimensiona a janela do browser
   useEffect(() => {
     const handleResize = () => setLarguraJanela(window.innerWidth)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Carrega UCs, Turmas, Salas e Docentes do backend quando a página é aberta
   useEffect(() => {
     const fetchDados = async () => {
       const [ucsRes, turmasRes, salasRes, docentesRes] = await Promise.all([
@@ -98,6 +102,7 @@ export default function HorarioPage() {
     fetchDados()
   }, [])
 
+  // Função para buscar os blocos gravados do backend
 const fetchBlocos = async () => {
   const res = await fetch('http://localhost:3000/blocos', { headers: { Authorization: `Bearer ${token}` } })
   const dados = await res.json()
@@ -106,8 +111,42 @@ const fetchBlocos = async () => {
 
 useEffect(() => {
   fetchBlocos()
+}, []);
+
+// Configuração do WebSocket para receber atualizações em tempo real
+useEffect(() => {
+  const socket = io('http://localhost:3000')
+
+  socket.on('bloco:criado', (bloco) => {
+    setBlocosGravados(prev => [...prev, bloco])
+    setBlocosColocados(prev => new Set([...prev, `${bloco.uc.id}-${bloco.turma.id}`]))
+  })
+
+  socket.on('bloco:atualizado', (bloco) => {
+    setBlocosGravados(prev => prev.map(b => b.id === bloco.id ? bloco : b))
+  })
+
+  socket.on('bloco:apagado', (id) => {
+    setBlocosGravados(prev => {
+      const blocoApagado = prev.find(b => b.id === id)
+      if (blocoApagado) {
+        setBlocosColocados(atual => {
+          const next = new Set(atual)
+          next.delete(`${blocoApagado.uc.id}-${blocoApagado.turma.id}`)
+          return next
+        })
+      }
+      return prev.filter(b => b.id !== id)
+    })
+  })
+
+  return () => {
+    socket.disconnect()
+  }
 }, [])
 
+
+// Carrega os feriados do backend sempre que o ano atual muda
   useEffect(() => {
     const fetchFeriados = async () => {
       const res = await fetch(`http://localhost:3000/feriados?ano=${anoAtual}`, {
@@ -371,8 +410,8 @@ useEffect(() => {
                 return !feriados.some(f => f.data === dateStr)
               }}
               hiddenDays={[0]}
-              editable={true}
-              droppable={true}
+              editable={podeEditar}
+              droppable={podeEditar}
               eventOverlap={false}
               eventReceive={(info) => {
                 
@@ -423,7 +462,6 @@ useEffect(() => {
                   ev.clientY <= rect.bottom
                 ) {
                   const { ucId, turmaId, blocoId } = info.event.extendedProps
-                  console.log('DragStop:', { ucId, turmaId, blocoId })
                   info.event.remove()
                   setBlocosColocados(prev => {
                     const next = new Set(prev)
@@ -484,6 +522,7 @@ useEffect(() => {
                       }}>
                         {arg.timeText}
                       </span>
+                      {podeEditar && (
                       <button
                         title="Devolver ao painel"
                         onClick={remover}
@@ -502,6 +541,7 @@ useEffect(() => {
                       >
                         ✕
                       </button>
+                      )}
                     </div>
 
                     {/* Nome da UC — centrado verticalmente entre o topo e a pill */}
@@ -649,117 +689,118 @@ useEffect(() => {
         </div>
 
         {/* Coluna da direita (Blocos por alocar) */}
-        <div ref={painelDireitoRef} style={{
-          display: 'flex',
-          flexDirection: 'column',
-          borderLeft: '1px solid #e2e8f0',
-          background: '#f1f5f9',
-          minHeight: 0,
-          overflow: 'hidden',
-        }}>
-          {/* Cabeçalho fixo */}
-          <div style={{
-            padding: '16px 16px 12px',
-            borderBottom: '1px solid #e2e8f0',
-            flexShrink: 0,
+        {podeEditar && (
+          <div ref={painelDireitoRef} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderLeft: '1px solid #e2e8f0',
+            background: '#f1f5f9',
+            minHeight: 0,
+            overflow: 'hidden',
           }}>
-            <h3 style={{
-              color: '#111',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              fontFamily: 'system-ui, sans-serif',
-              margin: 0,
+            {/* Cabeçalho fixo */}
+            <div style={{
+              padding: '16px 16px 12px',
+              borderBottom: '1px solid #e2e8f0',
+              flexShrink: 0,
             }}>
-              Blocos por alocar
-              {blocosPorAlocar.length > 0 && (
-                <span style={{
-                  marginLeft: '8px',
-                  background: '#16a34a',
-                  color: '#fff',
-                  borderRadius: '10px',
-                  padding: '1px 7px',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                }}>
-                  {blocosPorAlocar.length}
-                </span>
-              )}
-            </h3>
-          </div>
-
-          {/* Lista de blocos — ref para o Draggable */}
-          <div ref={containerRef} style={{ padding: '12px', flex: 1, minHeight: 0, overflow: 'auto' }}>
-            {blocosPorAlocar.length === 0 ? (
-              <p style={{
-                color: '#94a3b8',
-                fontSize: '0.8rem',
-                textAlign: 'center',
-                marginTop: '24px',
+              <h3 style={{
+                color: '#111',
+                fontSize: '0.9rem',
+                fontWeight: 600,
                 fontFamily: 'system-ui, sans-serif',
+                margin: 0,
               }}>
-                {todosBlocos.length === 0
-                  ? 'Importe um ficheiro Excel na página de Importação para gerar os blocos'
-                  : 'Todos os blocos foram alocados'}
-              </p>
-            ) : (
-              blocosPorAlocar
-                .map((bloco) => {
-                  const duracaoHoras = Math.max(1, Math.round(bloco.uc.horasContacto / 14))
-                  const dataEvent = JSON.stringify({
-                    title: bloco.uc.nome,
-                    duration: `${String(duracaoHoras).padStart(2, '0')}:00:00`,
-                    color: '#16a34a',
-                    // extendedProps são propriedades adicionais que podemos associar ao evento, para depois as usarmos no eventContent ou noutros callbacks do FullCalendar.
-                    extendedProps: {
-                      ucId: bloco.uc.id,
-                      turmaId: bloco.turma.id,
-                      ucNome: bloco.uc.nome,
-                      turmaNome: bloco.turma.nome,
-                      codigo: bloco.uc.codigo,
-                    },
-                  })
-                  return (
-                    <div
-                      key={blocoKey(bloco.uc, bloco.turma)}
-                      className="bloco-arrastavel"
-                      data-event={dataEvent}
-                      style={{
-                        background: '#fff',
-                        border: '1px solid #e2e8f0',
-                        borderLeft: '3px solid #16a34a',
-                        borderRadius: '6px',
-                        padding: '10px 12px',
-                        marginBottom: '8px',
-                        cursor: 'grab',
-                        fontFamily: 'system-ui, sans-serif',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <div style={{ fontWeight: 600, fontSize: '0.8rem', color: '#111', marginBottom: '4px' }}>
-                        {bloco.uc.nome}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        {bloco.uc.codigo} · {duracaoHoras}h/semana
-                      </div>
-                      <div style={{
-                        marginTop: '6px',
-                        display: 'inline-block',
-                        background: '#dcfce7',
-                        color: '#15803d',
-                        borderRadius: '4px',
-                        padding: '2px 6px',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                      }}>
-                        {bloco.turma.nome}
-                      </div>
-                    </div>
-                  )
-                })
-            )}
-          </div>
-        </div>
+                Blocos por alocar
+                {blocosPorAlocar.length > 0 && (
+                  <span style={{
+                    marginLeft: '8px',
+                    background: '#16a34a',
+                    color: '#fff',
+                    borderRadius: '10px',
+                    padding: '1px 7px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                  }}>
+                    {blocosPorAlocar.length}
+                  </span>
+                )}
+              </h3>
+            </div>
 
+            {/* Lista de blocos — ref para o Draggable */}
+            <div ref={containerRef} style={{ padding: '12px', flex: 1, minHeight: 0, overflow: 'auto' }}>
+              {blocosPorAlocar.length === 0 ? (
+                <p style={{
+                  color: '#94a3b8',
+                  fontSize: '0.8rem',
+                  textAlign: 'center',
+                  marginTop: '24px',
+                  fontFamily: 'system-ui, sans-serif',
+                }}>
+                  {todosBlocos.length === 0
+                    ? 'Importe um ficheiro Excel na página de Importação para gerar os blocos'
+                    : 'Todos os blocos foram alocados'}
+                </p>
+              ) : (
+                blocosPorAlocar
+                  .map((bloco) => {
+                    const duracaoHoras = Math.max(1, Math.round(bloco.uc.horasContacto / 14))
+                    const dataEvent = JSON.stringify({
+                      title: bloco.uc.nome,
+                      duration: `${String(duracaoHoras).padStart(2, '0')}:00:00`,
+                      color: '#16a34a',
+                      // extendedProps são propriedades adicionais que podemos associar ao evento, para depois as usarmos no eventContent ou noutros callbacks do FullCalendar.
+                      extendedProps: {
+                        ucId: bloco.uc.id,
+                        turmaId: bloco.turma.id,
+                        ucNome: bloco.uc.nome,
+                        turmaNome: bloco.turma.nome,
+                        codigo: bloco.uc.codigo,
+                      },
+                    })
+                    return (
+                      <div
+                        key={blocoKey(bloco.uc, bloco.turma)}
+                        className="bloco-arrastavel"
+                        data-event={dataEvent}
+                        style={{
+                          background: '#fff',
+                          border: '1px solid #e2e8f0',
+                          borderLeft: '3px solid #16a34a',
+                          borderRadius: '6px',
+                          padding: '10px 12px',
+                          marginBottom: '8px',
+                          cursor: 'grab',
+                          fontFamily: 'system-ui, sans-serif',
+                          userSelect: 'none',
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, fontSize: '0.8rem', color: '#111', marginBottom: '4px' }}>
+                          {bloco.uc.nome}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                          {bloco.uc.codigo} · {duracaoHoras}h/semana
+                        </div>
+                        <div style={{
+                          marginTop: '6px',
+                          display: 'inline-block',
+                          background: '#dcfce7',
+                          color: '#15803d',
+                          borderRadius: '4px',
+                          padding: '2px 6px',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                        }}>
+                          {bloco.turma.nome}
+                        </div>
+                      </div>
+                    )
+                  })
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

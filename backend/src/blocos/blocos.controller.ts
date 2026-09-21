@@ -4,9 +4,11 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { BlocosService } from "./blocos.service";
 import { CreateBlocoDto } from './dto/create-bloco.dto';
 import { UpdateBlocoDto } from './dto/update-bloco.dto';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 //Todos os endpoints deste controller estão protegidos com JWT
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('blocos')
 export class BlocosController {
     constructor(private blocosService: BlocosService){}
@@ -24,18 +26,21 @@ export class BlocosController {
     }
 
     // POST /blocos - cria um novo bloco
+    @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Post()
     create(@Body() dto: CreateBlocoDto){
         return this.blocosService.create(dto)
     }
 
     // PUT /blocos/:id - atualiza um bloco pelo id
+    @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Put(':id')
     update(@Param('id') id : string, @Body() dto:UpdateBlocoDto){
         return this.blocosService.update(Number(id), dto)
     }
 
     // DELETE /blocos/:id - apaga um bloco pelo id
+    @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Delete(':id')    
     remove(@Param('id') id:string){
         return this.blocosService.remove(Number(id))
