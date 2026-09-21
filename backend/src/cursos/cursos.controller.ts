@@ -3,8 +3,10 @@ import { CursosService } from './cursos.service'
 import { CreateCursoDto } from './dto/create-curso.dto'
 import { UpdateCursoDto } from './dto/update-curso.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { RolesGuard } from '../auth/roles.guard'
+import { Roles } from '../auth/roles.decorator'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('cursos')
 export class CursosController {
   constructor(private cursosService: CursosService) {}
@@ -22,18 +24,21 @@ export class CursosController {
   }
 
   // POST /cursos — cria um novo curso
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Post()
   create(@Body() dto: CreateCursoDto) {
     return this.cursosService.create(dto)
   }
 
   // PUT /cursos/:id — atualiza um curso pelo id
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateCursoDto) {
     return this.cursosService.update(Number(id), dto)
   }
 
   // DELETE /cursos/:id — apaga um curso pelo id
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.cursosService.remove(Number(id))

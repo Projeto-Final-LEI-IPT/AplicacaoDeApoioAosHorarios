@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 // Tipo que representa uma turma
 interface Turma {
@@ -19,6 +20,8 @@ interface Curso {
 }
 
 export default function TurmasPage() {
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [turmas, setTurmas] = useState<Turma[]>([])
   const [cursos, setCursos] = useState<Curso[]>([])
   const [nome, setNome] = useState('')
@@ -139,6 +142,7 @@ export default function TurmasPage() {
       )}
 
       {/* Formulário para criar turma */}
+      {podeEditar && (
       <div style={{
         background: '#f1f5f9',
         borderRadius: '12px',
@@ -249,6 +253,7 @@ export default function TurmasPage() {
           Criar Turma
         </button>
       </div>
+      )}
 
       {/* Tabela de turmas */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -259,7 +264,9 @@ export default function TurmasPage() {
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ano</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Semestre</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Curso</th>
-            <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            {podeEditar && (
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -270,27 +277,29 @@ export default function TurmasPage() {
               <td style={{ padding: '12px' }}>{turma.ano}º</td>
               <td style={{ padding: '12px' }}>{turma.semestre}º</td>
               <td style={{ padding: '12px' }}>{turma.curso?.nome}</td>
-              <td style={{ padding: '12px' }}>
-                <button
-                  onClick={() => handleApagar(turma.id)}
-                  style={{
-                    background: '#ef4444',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Apagar
-                </button>
-              </td>
+              {podeEditar && (
+                <td style={{ padding: '12px' }}>
+                  <button
+                    onClick={() => handleApagar(turma.id)}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Apagar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
           {turmas.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+              <td colSpan={podeEditar ? 6 : 5} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
                 Nenhuma turma encontrada
               </td>
             </tr>

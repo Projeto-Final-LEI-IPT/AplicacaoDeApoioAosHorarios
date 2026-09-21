@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 // Tipo que representa uma sala
 interface Sala {
@@ -9,6 +10,8 @@ interface Sala {
 }
 
 export default function SalasPage() {
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [salas, setSalas] = useState<Sala[]>([])
   const [nome, setNome] = useState('')
   const [capacidade, setCapacidade] = useState('')
@@ -117,6 +120,7 @@ export default function SalasPage() {
       )}
 
       {/* Formulário para criar sala */}
+      {podeEditar && (
       <div style={{
         background: '#f1f5f9',
         borderRadius: '12px',
@@ -196,6 +200,7 @@ export default function SalasPage() {
           Criar Sala
         </button>
       </div>
+      )}
 
       {/* Tabela de salas */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -205,7 +210,9 @@ export default function SalasPage() {
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Nome</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Capacidade</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Tipo</th>
-            <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            {podeEditar && (
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -215,27 +222,29 @@ export default function SalasPage() {
               <td style={{ padding: '12px' }}>{sala.nome}</td>
               <td style={{ padding: '12px' }}>{sala.capacidade}</td>
               <td style={{ padding: '12px' }}>{sala.tipo}</td>
-              <td style={{ padding: '12px' }}>
-                <button
-                  onClick={() => handleApagar(sala.id)}
-                  style={{
-                    background: '#ef4444',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Apagar
-                </button>
-              </td>
+              {podeEditar && (
+                <td style={{ padding: '12px' }}>
+                  <button
+                    onClick={() => handleApagar(sala.id)}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Apagar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
           {salas.length === 0 && (
             <tr>
-              <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+              <td colSpan={podeEditar ? 5 : 4} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
                 Nenhuma sala encontrada
               </td>
             </tr>

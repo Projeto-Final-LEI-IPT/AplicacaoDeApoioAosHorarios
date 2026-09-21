@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 export default function ImportacaoPage() {
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [ficheiro, setFicheiro] = useState<File | null>(null)
   const [resultado, setResultado] = useState<any>(null)
   const [erro, setErro] = useState('')
@@ -79,6 +82,19 @@ export default function ImportacaoPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!podeEditar) {
+    return (
+      <div style={{ padding: '24px', fontFamily: 'system-ui, sans-serif' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '24px' }}>
+          Importação de Ficheiros Excel
+        </h1>
+        <p style={{ color: '#64748b' }}>
+          Não tens permissão para aceder a esta página.
+        </p>
+      </div>
+    )
   }
 
   return (

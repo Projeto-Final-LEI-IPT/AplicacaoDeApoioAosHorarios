@@ -3,8 +3,10 @@ import { UcsService } from './ucs.service'
 import { CreateUcDto } from './dto/create-uc.dto'
 import { UpdateUcDto } from './dto/update-uc.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { RolesGuard } from '../auth/roles.guard'
+import { Roles } from '../auth/roles.decorator'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('ucs')
 export class UcsController {
   constructor(private ucsService: UcsService) {}
@@ -22,18 +24,21 @@ export class UcsController {
   }
 
   // POST /ucs — cria uma nova UC
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Post()
   create(@Body() dto: CreateUcDto) {
     return this.ucsService.create(dto)
   }
 
   // PUT /ucs/:id — atualiza uma UC pelo id
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUcDto) {
     return this.ucsService.update(Number(id), dto)
   }
 
   // DELETE /ucs/:id — apaga uma UC pelo id
+  @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ucsService.remove(Number(id))

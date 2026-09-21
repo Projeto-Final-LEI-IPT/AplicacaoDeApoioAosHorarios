@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 // Lista de itens do menu lateral com a label visível e o path da rota correspondente
 const menuItems = [
   { label: 'Horários', path: '/horario' },
-  { label: 'Importar Excel', path: '/importar' },
+  { label: 'Importar Excel', path: '/importar', rolesPermitidas: ['ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO'] },
   { label: 'Cursos e UCs', path: '/cursos' },
   { label: 'Docentes', path: '/docentes' },
   { label: 'Salas', path: '/salas' },

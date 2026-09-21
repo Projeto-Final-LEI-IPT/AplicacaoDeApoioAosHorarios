@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 // Tipo que representa uma unidade curricular
 interface UC {
@@ -20,6 +21,8 @@ interface Curso {
 }
 
 export default function UcsPage() {
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [ucs, setUcs] = useState<UC[]>([])
   const [cursos, setCursos] = useState<Curso[]>([])
   const [nome, setNome] = useState('')
@@ -148,6 +151,7 @@ export default function UcsPage() {
       )}
 
       {/* Formulário para criar UC */}
+      {podeEditar && (
       <div style={{
         background: '#f1f5f9',
         borderRadius: '12px',
@@ -274,6 +278,7 @@ export default function UcsPage() {
           Criar UC
         </button>
       </div>
+      )}
 
       {/* Tabela de UCs */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -285,7 +290,9 @@ export default function UcsPage() {
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Semestre</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Horas Contacto</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Curso</th>
-            <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            {podeEditar && (
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -297,27 +304,29 @@ export default function UcsPage() {
               <td style={{ padding: '12px' }}>{uc.semestre}º</td>
               <td style={{ padding: '12px' }}>{uc.horasContacto}h</td>
               <td style={{ padding: '12px' }}>{uc.curso?.nome}</td>
-              <td style={{ padding: '12px' }}>
-                <button
-                  onClick={() => handleApagar(uc.id)}
-                  style={{
-                    background: '#ef4444',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Apagar
-                </button>
-              </td>
+              {podeEditar && (
+                <td style={{ padding: '12px' }}>
+                  <button
+                    onClick={() => handleApagar(uc.id)}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Apagar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
           {ucs.length === 0 && (
             <tr>
-              <td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+              <td colSpan={podeEditar ? 7 : 6} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
                 Nenhuma UC encontrada
               </td>
             </tr>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
 
 // Tipo que representa um docente
 interface Docente {
@@ -14,6 +15,8 @@ const verifyEmail = (email: string) => {
 
 
 export default function DocentesPage() {
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [docentes, setDocentes] = useState<Docente[]>([])
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
@@ -127,6 +130,7 @@ export default function DocentesPage() {
       )}
 
       {/* Formulário para criar docente */}
+      {podeEditar && (
       <div style={{
         background: '#f1f5f9',
         borderRadius: '12px',
@@ -207,6 +211,7 @@ export default function DocentesPage() {
           Criar Docente
         </button>
       </div>
+      )}
 
       {/* Tabela de docentes */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -216,7 +221,9 @@ export default function DocentesPage() {
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Nome</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Email</th>
             <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Máx. Horas/Dia</th>
-            <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            {podeEditar && (
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Ações</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -226,27 +233,29 @@ export default function DocentesPage() {
               <td style={{ padding: '12px' }}>{docente.nome}</td>
               <td style={{ padding: '12px' }}>{docente.email}</td>
               <td style={{ padding: '12px' }}>{docente.maxHorasDia}</td>
-              <td style={{ padding: '12px' }}>
-                <button
-                  onClick={() => handleApagar(docente.id)}
-                  style={{
-                    background: '#ef4444',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    color: '#fff',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Apagar
-                </button>
-              </td>
+              {podeEditar && (
+                <td style={{ padding: '12px' }}>
+                  <button
+                    onClick={() => handleApagar(docente.id)}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Apagar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
           {docentes.length === 0 && (
             <tr>
-              <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
+              <td colSpan={podeEditar ? 5 : 4} style={{ padding: '24px', textAlign: 'center', color: '#94a3b8' }}>
                 Nenhum docente encontrado
               </td>
             </tr>
