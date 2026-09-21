@@ -11,24 +11,52 @@ Projeto Final — Instituto Politécnico de Tomar
 
 ## Como correr o projeto
 
-### 1. Iniciar a base de dados
+### 1. Instalar dependências
+```bash
+npm install
+cd backend && npm install
+cd ../frontend && npm install
+```
+
+### 2. Configurar variáveis de ambiente
+Copiar `backend/.env.example` para `backend/.env` e ajustar os valores se necessário (os valores por omissão já correspondem ao `docker-compose.yaml` desta raiz):
+```bash
+cd backend
+cp .env.example .env
+```
+
+### 3. Iniciar a base de dados (requer Docker)
 ```bash
 docker-compose up -d
 ```
 
-### 2. Iniciar o backend
+### 4. Aplicar as migrações à base de dados
+```bash
+cd backend
+npx prisma migrate deploy
+```
+
+### 5. Correr tudo de uma vez (backend + frontend + Prisma Studio)
+Na raiz do projeto:
+```bash
+npm run dev
+```
+
+Ou, individualmente:
+
+**Backend**
 ```bash
 cd backend
 npm run start:dev
 ```
 
-### 3. Iniciar o frontend
+**Frontend**
 ```bash
 cd frontend
 npm run dev
 ```
 
-### 4. Prisma Studio (Ambiente gráfico)
+**Prisma Studio (Ambiente gráfico)**
 ```bash
 cd backend
 npx prisma studio
