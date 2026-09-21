@@ -26,7 +26,7 @@ cd ../frontend && npm install
 ```
 
 ### 2. Configurar variáveis de ambiente
-Copiar `backend/.env.example` para `backend/.env` e ajustar os valores se necessário (os valores por omissão já correspondem ao `docker-compose.yaml` desta raiz):
+Copiar `backend/.env.example` para `backend/.env` e ajustar os valores se necessário (os valores por omissão já correspondem ao `docker-compose.yaml` da pasta principal do projeto ou pasta root):
 ```bash
 cd backend
 cp .env.example .env
