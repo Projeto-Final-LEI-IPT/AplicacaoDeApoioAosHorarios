@@ -84,12 +84,12 @@ export default function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1.6rem'
           }}><img
-              src="/ipt_logo.jpg"
+              src="/logo_ipt.jpg"
               alt="IPT"
               style={{
-                objectFit: 'cover',
-                height: '90px',
-                width: '170px',
+                objectFit: 'contain',
+                height: '100%',
+                width: '100%',
                 borderRadius: '16px',
                 display: 'block',
               }}
