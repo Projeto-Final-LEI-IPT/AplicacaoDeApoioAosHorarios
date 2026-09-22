@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-// Tipo que representa um docente
 interface Docente {
   id: number
   nome: string
@@ -29,7 +28,7 @@ export default function DocentesPage() {
   const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
   const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
 
-  // Carrega todos os docentes quando a página é aberta
+
   useEffect(() => {
     fetchDocentes()
   }, [])
@@ -41,6 +40,7 @@ export default function DocentesPage() {
     const data = await response.json()
     setDocentes(data)
   }
+
 
   const handleCriar = async () => {
     if (!nome || !email) {
@@ -83,6 +83,7 @@ export default function DocentesPage() {
     }
   }
 
+
   const handleApagar = async (id: number) => {
     const response = await fetch(`http://localhost:3000/docentes/${id}`, {
       method: 'DELETE',
@@ -103,7 +104,6 @@ export default function DocentesPage() {
         Gestão de Docentes
       </h1>
 
-      {/* Mensagens de erro e sucesso */}
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -129,7 +129,7 @@ export default function DocentesPage() {
         </div>
       )}
 
-      {/* Formulário para criar docente */}
+
       {podeEditar && (
       <div style={{
         background: '#f1f5f9',
@@ -158,6 +158,7 @@ export default function DocentesPage() {
           />
         </div>
 
+
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
             EMAIL *
@@ -176,6 +177,7 @@ export default function DocentesPage() {
             }}
           />
         </div>
+
 
         <div>
           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>
@@ -213,7 +215,7 @@ export default function DocentesPage() {
       </div>
       )}
 
-      {/* Tabela de docentes */}
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>

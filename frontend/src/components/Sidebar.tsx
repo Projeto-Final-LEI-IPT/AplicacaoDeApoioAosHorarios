@@ -43,20 +43,14 @@ export default function Sidebar() {
       fontFamily: 'system-ui, sans-serif',
     }}>
 
-       {/* Renderiza um botão para cada item do menu */}
       {itensVisiveis.map(item => {
-        // Verifica se este item corresponde à página atual
         const ativo = location.pathname === item.path
-
-        // Verifica se o rato está por cima deste item
         const hover = hoveredPath === item.path
 
         return (
           <button
             key={item.path}
-            // Navega para a rota do item ao clicar no mesmo
             onClick={() => navigate(item.path)}
-            // Regista o item com hover ao entrar com o rato e remove o hover ao sair
             onMouseEnter={() => setHoveredPath(item.path)}
             onMouseLeave={() => setHoveredPath(null)}
             style={{

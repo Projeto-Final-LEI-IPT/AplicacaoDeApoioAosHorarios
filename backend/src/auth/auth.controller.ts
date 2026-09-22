@@ -1,7 +1,6 @@
 import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common'
 import { AuthService } from './auth.service'
 
-// DTO com os campos necessários para o login
 class LoginDto {
   email!: string
   password!: string

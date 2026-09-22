@@ -11,7 +11,6 @@ export class AppController {
     return this.appService.getHello()
   }
 
-  // Rota protegida — só acessível com token JWT válido
   @UseGuards(JwtAuthGuard)
   @Get('perfil')
   getPerfil(@Request() req: any) {

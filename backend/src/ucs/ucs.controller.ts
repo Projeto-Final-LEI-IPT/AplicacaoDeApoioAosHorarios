@@ -11,33 +11,28 @@ import { Roles } from '../auth/roles.decorator'
 export class UcsController {
   constructor(private ucsService: UcsService) {}
 
-  // GET /ucs — lista todas as UCs
   @Get()
   findAll() {
     return this.ucsService.findAll()
   }
 
-  // GET /ucs/:id — retorna uma UC pelo id
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ucsService.findOne(Number(id))
   }
 
-  // POST /ucs — cria uma nova UC
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Post()
   create(@Body() dto: CreateUcDto) {
     return this.ucsService.create(dto)
   }
 
-  // PUT /ucs/:id — atualiza uma UC pelo id
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUcDto) {
     return this.ucsService.update(Number(id), dto)
   }
 
-  // DELETE /ucs/:id — apaga uma UC pelo id
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Delete(':id')
   remove(@Param('id') id: string) {

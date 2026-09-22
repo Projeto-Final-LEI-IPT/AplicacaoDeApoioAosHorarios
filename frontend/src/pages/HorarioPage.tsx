@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar"
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
-import {io} from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { useAuth } from '../hooks/useAuth'
 
 
@@ -44,13 +44,15 @@ interface Bloco {
   uc: any
   docente: any
   sala: any
-  turma: any 
+  turma: any
 }
 
 type Vista = 'turma' | 'docente' | 'sala'
 
 export default function HorarioPage() {
 
+  const { user } = useAuth()
+  const podeEditar = user?.role !== 'DOCENTE'
   const [larguraJanela, setLarguraJanela] = useState(window.innerWidth)
   const [ucs, setUcs] = useState<UC[]>([])
   const [turmas, setTurmas] = useState<Turma[]>([])
@@ -61,7 +63,7 @@ export default function HorarioPage() {
   const [docentes, setDocentes] = useState<Docente[]>([])
   const [salas, setSalas] = useState<Sala[]>([])
   const [dialogAberto, setDialogAberto] = useState(false)
-  const [dadosDrop, setDadosDrop] = useState<{ ucId: number; turmaId: number; ucNome: string; turmaNome: string; dataDrop : string; horaInicio:string ; horaFim:string} | null>(null)
+  const [dadosDrop, setDadosDrop] = useState<{ ucId: number; turmaId: number; ucNome: string; turmaNome: string; dataDrop: string; horaInicio: string; horaFim: string } | null>(null)
   const [tipologiaEscolhida, setTipologiaEscolhida] = useState('')
   const [docenteEscolhido, setDocenteEscolhido] = useState('')
   const [salaEscolhida, setSalaEscolhida] = useState('')
@@ -73,26 +75,24 @@ export default function HorarioPage() {
   const painelDireitoRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
   const eventoPendenteRef = useRef<any>(null)
-  const token = localStorage.getItem('token')
-  const { user } = useAuth()
-  const podeEditar = user?.role !== 'DOCENTE'
+
+   const token = localStorage.getItem('token')
 
 
-// Atualiza a largura da janela sempre que o utilizador redimensiona a janela do browser
   useEffect(() => {
     const handleResize = () => setLarguraJanela(window.innerWidth)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Carrega UCs, Turmas, Salas e Docentes do backend quando a página é aberta
+
   useEffect(() => {
     const fetchDados = async () => {
       const [ucsRes, turmasRes, salasRes, docentesRes] = await Promise.all([
         fetch('http://localhost:3000/ucs', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('http://localhost:3000/turmas', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('http://localhost:3000/salas', {headers: { Authorization: `Bearer ${token}` }}),
-        fetch('http://localhost:3000/docentes', {headers:{ Authorization: `Bearer ${token}` }})
+        fetch('http://localhost:3000/salas', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('http://localhost:3000/docentes', { headers: { Authorization: `Bearer ${token}` } })
       ])
       setUcs(await ucsRes.json())
       setTurmas(await turmasRes.json())
@@ -102,51 +102,50 @@ export default function HorarioPage() {
     fetchDados()
   }, [])
 
-  // Função para buscar os blocos gravados do backend
-const fetchBlocos = async () => {
-  const res = await fetch('http://localhost:3000/blocos', { headers: { Authorization: `Bearer ${token}` } })
-  const dados = await res.json()
-  setBlocosGravados(dados)
-}
 
-useEffect(() => {
-  fetchBlocos()
-}, []);
-
-// Configuração do WebSocket para receber atualizações em tempo real
-useEffect(() => {
-  const socket = io('http://localhost:3000')
-
-  socket.on('bloco:criado', (bloco) => {
-    setBlocosGravados(prev => [...prev, bloco])
-    setBlocosColocados(prev => new Set([...prev, `${bloco.uc.id}-${bloco.turma.id}`]))
-  })
-
-  socket.on('bloco:atualizado', (bloco) => {
-    setBlocosGravados(prev => prev.map(b => b.id === bloco.id ? bloco : b))
-  })
-
-  socket.on('bloco:apagado', (id) => {
-    setBlocosGravados(prev => {
-      const blocoApagado = prev.find(b => b.id === id)
-      if (blocoApagado) {
-        setBlocosColocados(atual => {
-          const next = new Set(atual)
-          next.delete(`${blocoApagado.uc.id}-${blocoApagado.turma.id}`)
-          return next
-        })
-      }
-      return prev.filter(b => b.id !== id)
-    })
-  })
-
-  return () => {
-    socket.disconnect()
+  const fetchBlocos = async () => {
+    const res = await fetch('http://localhost:3000/blocos', { headers: { Authorization: `Bearer ${token}` } })
+    const dados = await res.json()
+    setBlocosGravados(dados)
   }
-}, [])
+
+  useEffect(() => {
+    fetchBlocos()
+  }, []);
 
 
-// Carrega os feriados do backend sempre que o ano atual muda
+  useEffect(() => {
+    const socket = io('http://localhost:3000')
+
+    socket.on('bloco:criado', (bloco) => {
+      setBlocosGravados(prev => [...prev, bloco])
+      setBlocosColocados(prev => new Set([...prev, `${bloco.uc.id}-${bloco.turma.id}`]))
+    })
+
+    socket.on('bloco:atualizado', (bloco) => {
+      setBlocosGravados(prev => prev.map(b => b.id === bloco.id ? bloco : b))
+    })
+
+    socket.on('bloco:apagado', (id) => {
+      setBlocosGravados(prev => {
+        const blocoApagado = prev.find(b => b.id === id)
+        if (blocoApagado) {
+          setBlocosColocados(atual => {
+            const next = new Set(atual)
+            next.delete(`${blocoApagado.uc.id}-${blocoApagado.turma.id}`)
+            return next
+          })
+        }
+        return prev.filter(b => b.id !== id)
+      })
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
+
   useEffect(() => {
     const fetchFeriados = async () => {
       const res = await fetch(`http://localhost:3000/feriados?ano=${anoAtual}`, {
@@ -158,8 +157,7 @@ useEffect(() => {
   }, [anoAtual])
 
 
-  // Inicializa o Draggable do FullCalendar no contentor dos blocos.
-  // Re-inicializa sempre que a página ou os blocos colocados mudam (o DOM muda).
+  // Inicializa o Draggable do FullCalendar
   useEffect(() => {
     if (!containerRef.current) return
     const draggable = new Draggable(containerRef.current, {
@@ -172,38 +170,36 @@ useEffect(() => {
   const cursos = Array.from(new Map(ucs.map(u => [u.curso.id, u.curso])).values())
 
   const blocoKey = (uc: UC, turma: Turma) => `${uc.id}-${turma.id}`
-
   const todosBlocos = ucs.flatMap(uc =>
     turmas
       .filter(t => t.curso.id === uc.curso.id && (t.ano - 1) * 2 + t.semestre === uc.semestre)
       .map(turma => ({ uc, turma }))
   )
-
   const blocosPorAlocar = todosBlocos.filter(b => !blocosColocados.has(blocoKey(b.uc, b.turma)))
 
-  const feriadosEvents = useMemo(()=> feriados.map(f => ({
+  const feriadosEvents = useMemo(() => feriados.map(f => ({
     start: `${f.data}T00:00:00`,
     end: `${f.data}T24:00:00`,
     display: 'background' as const,
     color: '#fecaca',
     extendedProps: { isFeriado: true, nome: f.nome },
-  })),[feriados])
+  })), [feriados])
 
-  const blocosGravadosEvents = useMemo(()=> blocosGravados
-  .filter(b => filtroCurso === '' || b.uc.cursoId === Number(filtroCurso))
-  .filter(b => {
-    if (filtroEntidade === '') return true
-    if (vista === 'turma') return b.turma.id === Number(filtroEntidade)
-    if (vista === 'docente') return b.docente.id === Number(filtroEntidade)
-    if (vista === 'sala') return b.sala.id === Number(filtroEntidade)
-  return true
-})
-  .map(b => ({
-    start: `${b.data.split('T')[0]}T${b.horaInicio}`,
-    end:`${b.data.split('T')[0]}T${b.horaFim}`,
-    extendedProps: {blocoId: b.id, ucId: b.uc.id, ucNome: b.uc.nome, turmaId: b.turma.id, turmaNome: b.turma.nome, docente: b.docente.nome, sala: b.sala.nome}
-  })),[blocosGravados, filtroCurso, filtroEntidade, vista])
-  
+  const blocosGravadosEvents = useMemo(() => blocosGravados
+    .filter(b => filtroCurso === '' || b.uc.cursoId === Number(filtroCurso))
+    .filter(b => {
+      if (filtroEntidade === '') return true
+      if (vista === 'turma') return b.turma.id === Number(filtroEntidade)
+      if (vista === 'docente') return b.docente.id === Number(filtroEntidade)
+      if (vista === 'sala') return b.sala.id === Number(filtroEntidade)
+      return true
+    })
+    .map(b => ({
+      start: `${b.data.split('T')[0]}T${b.horaInicio}`,
+      end: `${b.data.split('T')[0]}T${b.horaFim}`,
+      extendedProps: { blocoId: b.id, ucId: b.uc.id, ucNome: b.uc.nome, turmaId: b.turma.id, turmaNome: b.turma.nome, docente: b.docente.nome, sala: b.sala.nome }
+    })), [blocosGravados, filtroCurso, filtroEntidade, vista])
+
   const irParaAnterior = () => calendarRef.current?.getApi().prev()
   const irParaProximo = () => calendarRef.current?.getApi().next()
   const irParaHoje = () => calendarRef.current?.getApi().today()
@@ -255,7 +251,6 @@ useEffect(() => {
           borderRight: '1px solid #e2e8f0',
         }}>
 
-          {/* Barra de filtros fina */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -272,7 +267,7 @@ useEffect(() => {
             {(['turma', 'docente', 'sala'] as Vista[]).map(v => (
               <button
                 key={v}
-                onClick={() => {setVista(v); setFiltroEntidade('')}}
+                onClick={() => { setVista(v); setFiltroEntidade('') }}
                 style={{
                   background: vista === v ? '#16a34a' : '#f1f5f9',
                   border: 'none',
@@ -316,7 +311,6 @@ useEffect(() => {
             </select>
 
             <div style={{ width: '1px', height: '18px', background: '#e2e8f0', margin: '0 4px' }} />
-
             <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Curso:</span>
             <select
               value={filtroCurso}
@@ -350,7 +344,7 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Grelha horária */}
+
           <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', padding: '0 12px 12px' }}>
             <FullCalendar
               ref={calendarRef}
@@ -414,10 +408,10 @@ useEffect(() => {
               droppable={podeEditar}
               eventOverlap={false}
               eventReceive={(info) => {
-                
-                const { ucId, turmaId , ucNome, turmaNome } = info.event.extendedProps
+
+                const { ucId, turmaId, ucNome, turmaNome } = info.event.extendedProps
                 setBlocosColocados(prev => new Set([...prev, `${ucId}-${turmaId}`]))
-                
+
                 const dataDrop = info.event.startStr.split('T')[0]
                 const horaInicio = info.event.startStr.split('T')[1].slice(0, 5)
                 const horaFim = info.event.endStr.split('T')[1].slice(0, 5)
@@ -427,7 +421,7 @@ useEffect(() => {
                 eventoPendenteRef.current = info.event
 
               }}
-              
+
 
               eventDrop={(info) => {
                 const { blocoId } = info.event.extendedProps
@@ -451,6 +445,7 @@ useEffect(() => {
                 }).then(() => fetchBlocos())
               }}
 
+
               eventDragStop={(info) => {
                 if (!painelDireitoRef.current) return
                 const rect = painelDireitoRef.current.getBoundingClientRect()
@@ -468,16 +463,18 @@ useEffect(() => {
                     next.delete(`${ucId}-${turmaId}`)
                     return next
                   })
-                  if(blocoId){
+                  if (blocoId) {
                     fetch(`http://localhost:3000/blocos/${blocoId}`, {
                       method: 'DELETE',
                       headers: {
-                        'Authorization': `Bearer ${token}`},
+                        'Authorization': `Bearer ${token}`
+                      },
                     })
                     setBlocosGravados(prev => prev.filter(b => b.id !== blocoId))
                   }
                 }
               }}
+
 
               eventContent={(arg) => {
                 if (arg.event.extendedProps.isFeriado) return <></>
@@ -490,7 +487,7 @@ useEffect(() => {
                     next.delete(`${ucId}-${turmaId}`)
                     return next
                   })
-                  if(blocoId){
+                  if (blocoId) {
                     fetch(`http://localhost:3000/blocos/${blocoId}`, {
                       method: 'DELETE',
                       headers: {
@@ -523,28 +520,28 @@ useEffect(() => {
                         {arg.timeText}
                       </span>
                       {podeEditar && (
-                      <button
-                        title="Devolver ao painel"
-                        onClick={remover}
-                        style={{
-                          background: 'rgba(255,255,255,0.15)',
-                          border: '1px solid rgba(255,255,255,0.3)',
-                          borderRadius: '4px',
-                          color: '#fff',
-                          cursor: 'pointer',
-                          fontSize: '0.58rem',
-                          padding: '1px 5px',
-                          lineHeight: 1.4,
-                          fontFamily: 'inherit',
-                          flexShrink: 0,
-                        }}
-                      >
-                        ✕
-                      </button>
+                        <button
+                          title="Devolver ao painel"
+                          onClick={remover}
+                          style={{
+                            background: 'rgba(255,255,255,0.15)',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            cursor: 'pointer',
+                            fontSize: '0.58rem',
+                            padding: '1px 5px',
+                            lineHeight: 1.4,
+                            fontFamily: 'inherit',
+                            flexShrink: 0,
+                          }}
+                        >
+                          ✕
+                        </button>
                       )}
                     </div>
 
-                    {/* Nome da UC — centrado verticalmente entre o topo e a pill */}
+
                     <div style={{
                       fontWeight: 700,
                       fontSize: '0.78rem',
@@ -559,7 +556,7 @@ useEffect(() => {
                       {ucNome}
                     </div>
 
-                    {/* Turma — alinhada ao fundo */}
+
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                       <span style={{
                         background: 'rgba(255,255,255,0.15)',
@@ -579,6 +576,7 @@ useEffect(() => {
               }}
               eventColor="#16a34a"
             />
+
 
             {dialogAberto && (
               <div style={{
@@ -604,8 +602,8 @@ useEffect(() => {
                     <p>UC: {dadosDrop.ucNome}</p>
                     <p>Turma: {dadosDrop.turmaNome}</p>
                     <p>Data: {dadosDrop.dataDrop}</p>
-                     
-                    <select style={{ marginRight: '2px'}} value={tipologiaEscolhida} onChange={e => setTipologiaEscolhida(e.target.value)}>
+
+                    <select style={{ marginRight: '2px' }} value={tipologiaEscolhida} onChange={e => setTipologiaEscolhida(e.target.value)}>
                       <option value="">Selecione a tipologia</option>
                       <option value="">Teórica</option>
                       <option value="">Prática Laboratorial</option>
@@ -632,7 +630,7 @@ useEffect(() => {
                       ))}
                     </select>
 
-                    <button style={{ marginRight: '15px', fontFamily: 'system-ui, sans-serif' , padding: '4px 4px'}} onClick={async () => {
+                    <button style={{ marginRight: '15px', fontFamily: 'system-ui, sans-serif', padding: '4px 4px' }} onClick={async () => {
                       if (!dadosDrop) return
                       await fetch('http://localhost:3000/blocos', {
                         method: 'POST',
@@ -672,7 +670,7 @@ useEffect(() => {
                       }
                       setTipologiaEscolhida('')
                       setDocenteEscolhido('')
-                      setSalaEscolhida('') 
+                      setSalaEscolhida('')
                       setDialogAberto(false)
 
 
@@ -688,7 +686,6 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Coluna da direita (Blocos por alocar) */}
         {podeEditar && (
           <div ref={painelDireitoRef} style={{
             display: 'flex',
@@ -698,7 +695,6 @@ useEffect(() => {
             minHeight: 0,
             overflow: 'hidden',
           }}>
-            {/* Cabeçalho fixo */}
             <div style={{
               padding: '16px 16px 12px',
               borderBottom: '1px solid #e2e8f0',
@@ -728,7 +724,7 @@ useEffect(() => {
               </h3>
             </div>
 
-            {/* Lista de blocos — ref para o Draggable */}
+
             <div ref={containerRef} style={{ padding: '12px', flex: 1, minHeight: 0, overflow: 'auto' }}>
               {blocosPorAlocar.length === 0 ? (
                 <p style={{

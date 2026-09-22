@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 
 type Role = 'ADMIN' | 'COMISSAO_ESCOLA' | 'COMISSAO_CURSO' | 'DOCENTE'
 
-// Tipo que representa um utilizador (user) do sistema
 interface User {
   id: number
   nome: string
@@ -29,7 +28,6 @@ export default function UsersPage() {
   const mostrarErro = (msg: string) => { setErro(msg); setTimeout(() => setErro(''), 2000) }
   const mostrarSucesso = (msg: string) => { setSucesso(msg); setTimeout(() => setSucesso(''), 2000) }
 
-  // Carrega todos os utilizadores quando a página é aberta
   useEffect(() => {
     fetchUtilizadores()
   }, [])
@@ -45,6 +43,7 @@ export default function UsersPage() {
     const data = await response.json()
     setUtilizadores(data)
   }
+
 
   const handleCriar = async () => {
     if (!nome || !email) {
@@ -89,6 +88,7 @@ export default function UsersPage() {
     }
   }
 
+
   const handleApagar = async (id: number) => {
     const response = await fetch(`http://localhost:3000/users/${id}`, {
       method: 'DELETE',
@@ -109,7 +109,6 @@ export default function UsersPage() {
         Gestão de Utilizadores
       </h1>
 
-      {/* Mensagens de erro e sucesso */}
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -237,7 +236,7 @@ export default function UsersPage() {
         </button>
       </div>
 
-      {/* Tabela de utilizadores */}
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>

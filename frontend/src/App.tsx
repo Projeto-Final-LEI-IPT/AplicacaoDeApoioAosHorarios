@@ -22,7 +22,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Páginas com navbar */}
+          {/* Páginas da Sidebar */}
           <Route path="/" element={
             <PrivateRoute>
               <MainLayout />

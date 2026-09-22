@@ -7,7 +7,6 @@ export class ImportacaoService {
   constructor(private prisma: PrismaService) {}
 
   async importarExcel(buffer: Buffer) {
-    // Lê o ficheiro Excel a partir do buffer
     const workbook = XLSX.read(buffer, { type: 'buffer' })
 
     const resultados = {
@@ -18,7 +17,6 @@ export class ImportacaoService {
       erros: [] as string[],
     }
 
-    // Lê a folha de Cursos se existir
     if (workbook.SheetNames.includes('Cursos')) {
       const sheet = workbook.Sheets['Cursos']
       const rows = XLSX.utils.sheet_to_json<any>(sheet)
@@ -44,7 +42,6 @@ export class ImportacaoService {
       }
     }
 
-    // Lê a folha de Docentes se existir
     if (workbook.SheetNames.includes('Docentes')) {
       const sheet = workbook.Sheets['Docentes']
       const rows = XLSX.utils.sheet_to_json<any>(sheet)
@@ -70,7 +67,6 @@ export class ImportacaoService {
       }
     }
 
-    // Lê a folha de Turmas se existir
     if (workbook.SheetNames.includes('Turmas')) {
       const sheet = workbook.Sheets['Turmas']
       const rows = XLSX.utils.sheet_to_json<any>(sheet)
@@ -106,7 +102,6 @@ export class ImportacaoService {
       }
     }
 
-    // Lê a folha de UCs se existir
     if (workbook.SheetNames.includes('UCs')) {
       const sheet = workbook.Sheets['UCs']
       const rows = XLSX.utils.sheet_to_json<any>(sheet)

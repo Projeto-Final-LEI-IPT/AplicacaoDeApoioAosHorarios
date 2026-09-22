@@ -11,33 +11,28 @@ import { Roles } from '../auth/roles.decorator'
 export class CursosController {
   constructor(private cursosService: CursosService) {}
 
-  // GET /cursos — lista todos os cursos
   @Get()
   findAll() {
     return this.cursosService.findAll()
   }
 
-  // GET /cursos/:id — retorna um curso pelo id
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.cursosService.findOne(Number(id))
   }
 
-  // POST /cursos — cria um novo curso
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Post()
   create(@Body() dto: CreateCursoDto) {
     return this.cursosService.create(dto)
   }
 
-  // PUT /cursos/:id — atualiza um curso pelo id
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateCursoDto) {
     return this.cursosService.update(Number(id), dto)
   }
 
-  // DELETE /cursos/:id — apaga um curso pelo id
   @Roles('ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO')
   @Delete(':id')
   remove(@Param('id') id: string) {

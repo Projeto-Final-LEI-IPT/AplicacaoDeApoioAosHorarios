@@ -8,14 +8,12 @@ import { UpdateDocenteDto } from './dto/update-docente.dto'
 export class DocentesService {
   constructor(private prisma: PrismaService) {}
 
-  // Retorna todos os docentes
   findAll() {
     return this.prisma.docente.findMany({
-      include: { user: true }, // Inclui os dados do utilizador associado
+      include: { user: true }, 
     })
   }
 
-  // Retorna um docente pelo id
   findOne(id: number) {
     return this.prisma.docente.findUnique({
       where: { id },
@@ -24,7 +22,6 @@ export class DocentesService {
   }
 
 async create(dto: CreateDocenteDto) {
-  // Verifica se já existe um docente com o mesmo email
   const docenteExistente = await this.prisma.docente.findFirst({
     where: { email: dto.email },
   })
@@ -33,7 +30,6 @@ async create(dto: CreateDocenteDto) {
     throw new ConflictException(`Já existe um docente com o email "${dto.email}"`)
   }
 
-  // Cria o docente com ou sem userId
   if (dto.userId) {
     return this.prisma.docente.create({
       data: {
@@ -54,7 +50,6 @@ async create(dto: CreateDocenteDto) {
   })
 }
 
-  // Atualiza um docente pelo id
   update(id: number, dto: UpdateDocenteDto) {
     return this.prisma.docente.update({
       where: { id },
@@ -62,7 +57,6 @@ async create(dto: CreateDocenteDto) {
     })
   }
 
-  // Apaga um docente pelo id
   remove(id: number) {
     return this.prisma.docente.delete({
       where: { id },

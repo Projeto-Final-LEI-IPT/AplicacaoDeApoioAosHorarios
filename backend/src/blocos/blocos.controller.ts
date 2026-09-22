@@ -1,4 +1,3 @@
-//imports
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { BlocosService } from "./blocos.service";
@@ -7,39 +6,33 @@ import { UpdateBlocoDto } from './dto/update-bloco.dto';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 
-//Todos os endpoints deste controller estão protegidos com JWT
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('blocos')
 export class BlocosController {
     constructor(private blocosService: BlocosService){}
 
-    // GET /blocos — lista todos os blocos
     @Get()
     findAll(){
         return this.blocosService.findAll()
     }
 
-    // GET /blocos/:id - retorna um bloco pelo id
     @Get(':id')
     findOne(@Param('id') id:string) {
         return this.blocosService.findOne(Number(id))
     }
 
-    // POST /blocos - cria um novo bloco
     @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Post()
     create(@Body() dto: CreateBlocoDto){
         return this.blocosService.create(dto)
     }
 
-    // PUT /blocos/:id - atualiza um bloco pelo id
     @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Put(':id')
     update(@Param('id') id : string, @Body() dto:UpdateBlocoDto){
         return this.blocosService.update(Number(id), dto)
     }
 
-    // DELETE /blocos/:id - apaga um bloco pelo id
     @Roles('ADMIN','COMISSAO_CURSO','COMISSAO_ESCOLA')
     @Delete(':id')    
     remove(@Param('id') id:string){

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-// Tipo que representa uma sala
 interface Sala {
   id: number
   nome: string
@@ -93,7 +92,7 @@ export default function SalasPage() {
         Gestão de Salas
       </h1>
 
-      {/* Mensagens de erro e sucesso */}
+
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -202,7 +201,7 @@ export default function SalasPage() {
       </div>
       )}
 
-      {/* Tabela de salas */}
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>

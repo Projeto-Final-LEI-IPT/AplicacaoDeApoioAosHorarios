@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Navbar() {
-  const { user } = useAuth()  // Obtém o utilizador autenticado do contexto de autenticação
+  const { user } = useAuth() 
   
   // Hook para navegação programática
   const navigate = useNavigate()
@@ -25,15 +25,15 @@ export default function Navbar() {
       padding: '0 32px',
       height: '64px',
       display: 'flex',
-      position: 'sticky', // Navbar fica fixo no topo ao fazer scroll
+      position: 'sticky',
       top: 0,
-      zIndex: 100,  // Garante que a navbar fique acima de outros conteúdos
+      zIndex: 100, 
       alignItems: 'center',
       justifyContent: 'space-between',
       fontFamily: 'system-ui, sans-serif'
     }}>
 
-      {/* Logotipo do IPT e nome da aplicação */}
+
       <div 
       onClick={() => navigate('/horario')}
       style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor:"pointer" }}
@@ -47,7 +47,7 @@ export default function Navbar() {
         </span>
       </div>
 
-      {/* Nome do utilizador autenticado e botão de logout */}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <span style={{
           color: '#fff',

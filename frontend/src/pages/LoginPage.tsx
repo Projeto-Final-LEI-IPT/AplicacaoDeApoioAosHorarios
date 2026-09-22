@@ -3,17 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 export default function LoginPage() {
-// Hook para navegação programática
   const navigate = useNavigate()
   const { login } = useAuth()
-
-  // Estados para controlar os campos de email, password, mensagem de erro e hover do botão
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [hover, setHover] = useState(false)
 
-  // Função para validar os campos e simular o envio do formulário
+
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     if (!email || !password) {
@@ -22,7 +19,6 @@ export default function LoginPage() {
     }
 
     try {
-    // Faz o pedido ao backend
     const response = await fetch('http://localhost:3000/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -36,10 +32,8 @@ export default function LoginPage() {
       return
     }
 
-    // Usa a função do contexto
     await login(data.access_token)
 
-    // Redireciona para a página de horários
     setError('')
     navigate('/horario')
 
@@ -72,7 +66,6 @@ export default function LoginPage() {
         boxShadow: '0 8px 32px rgba(152, 147, 147, 0)',
       }}>
 
-        {/* Logotipo do IPT + nome da aplicação */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
             width: '180px', height: '100px',
@@ -100,7 +93,6 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-        {/* Erro ao enviar o formulário */}
         {error && (
           <div style={{
             background: '#ef444422',
@@ -117,7 +109,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Campo de Email */}
+
         <div style={{ marginBottom: '16px' }}>
           <label style={{ color: '#000000', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
             EMAIL INSTITUCIONAL
@@ -141,7 +133,7 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Campo de Palavra-Passe */}
+
         <div style={{ marginBottom: '24px' }}>
           <label style={{ color: '#000000', textShadow: '0 1px 3px rgba(0,0,0,0.5)', fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
             PALAVRA-PASSE
@@ -165,7 +157,7 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Botão de Login */}
+
         <button
           type="submit"
           onMouseEnter={() => setHover(true)}

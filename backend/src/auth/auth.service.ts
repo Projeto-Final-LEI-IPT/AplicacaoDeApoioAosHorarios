@@ -11,12 +11,10 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    // Procura o utilizador pelo email
     const user = await this.prisma.user.findUnique({
       where: { email },
     })
 
-    // Se o utilizador não existir lança erro de autenticação
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas')
     }

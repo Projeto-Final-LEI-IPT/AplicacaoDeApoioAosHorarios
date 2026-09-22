@@ -7,14 +7,12 @@ import { UpdateUcDto } from './dto/update-uc.dto'
 export class UcsService {
   constructor(private prisma: PrismaService) {}
 
-  // Retorna todas as UCs com o curso associado
   findAll() {
     return this.prisma.unidadeCurricular.findMany({
       include: { curso: true },
     })
   }
 
-  // Retorna uma UC pelo id
   findOne(id: number) {
     return this.prisma.unidadeCurricular.findUnique({
       where: { id },
@@ -22,7 +20,6 @@ export class UcsService {
     })
   }
 
-  // Cria uma nova UC
   async create(dto: CreateUcDto) {
     const ucPorCodigo = await this.prisma.unidadeCurricular.findFirst({
       where: { codigo: dto.codigo },
@@ -51,7 +48,6 @@ export class UcsService {
     })
   }
 
-  // Atualiza uma UC pelo id
   update(id: number, dto: UpdateUcDto) {
     return this.prisma.unidadeCurricular.update({
       where: { id },
@@ -65,7 +61,6 @@ export class UcsService {
     })
   }
 
-  // Apaga uma UC pelo id
   remove(id: number) {
     return this.prisma.unidadeCurricular.delete({
       where: { id },

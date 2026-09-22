@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  // ← adicionado
   async function login(token: string) {
     localStorage.setItem('token', token)
     const res = await api.get('/perfil')

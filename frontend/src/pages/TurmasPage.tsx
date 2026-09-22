@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-// Tipo que representa uma turma
 interface Turma {
   id: number
   nome: string
@@ -13,7 +12,6 @@ interface Turma {
   }
 }
 
-// Tipo que representa um curso para o dropdown
 interface Curso {
   id: number
   nome: string
@@ -49,6 +47,7 @@ export default function TurmasPage() {
     setTurmas(data)
   }
 
+
   const fetchCursos = async () => {
     const response = await fetch('http://localhost:3000/cursos', {
       headers: { Authorization: `Bearer ${token}` },
@@ -56,6 +55,7 @@ export default function TurmasPage() {
     const data = await response.json()
     setCursos(data)
   }
+
 
   const handleCriar = async () => {
     if (!nome || !cursoId) {
@@ -95,6 +95,7 @@ export default function TurmasPage() {
     }
   }
 
+
   const handleApagar = async (id: number) => {
     const response = await fetch(`http://localhost:3000/turmas/${id}`, {
       method: 'DELETE',
@@ -115,7 +116,6 @@ export default function TurmasPage() {
         Gestão de Turmas
       </h1>
 
-      {/* Mensagens de erro e sucesso */}
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -255,7 +255,6 @@ export default function TurmasPage() {
       </div>
       )}
 
-      {/* Tabela de turmas */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>

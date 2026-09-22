@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-// Tipo que representa uma unidade curricular
 interface UC {
   id: number
   nome: string
@@ -14,7 +13,6 @@ interface UC {
   }
 }
 
-// Tipo que representa um curso para o dropdown
 interface Curso {
   id: number
   nome: string
@@ -51,6 +49,7 @@ export default function UcsPage() {
     setUcs(data)
   }
 
+
   const fetchCursos = async () => {
     const response = await fetch('http://localhost:3000/cursos', {
       headers: { Authorization: `Bearer ${token}` },
@@ -58,6 +57,7 @@ export default function UcsPage() {
     const data = await response.json()
     setCursos(data)
   }
+
 
   const handleCriar = async () => {
     if (!nome || !codigo || !horasContacto || !cursoId) {
@@ -104,6 +104,7 @@ export default function UcsPage() {
     }
   }
 
+
   const handleApagar = async (id: number) => {
     const response = await fetch(`http://localhost:3000/ucs/${id}`, {
       method: 'DELETE',
@@ -124,7 +125,6 @@ export default function UcsPage() {
         Gestão de Unidades Curriculares
       </h1>
 
-      {/* Mensagens de erro e sucesso */}
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -280,7 +280,6 @@ export default function UcsPage() {
       </div>
       )}
 
-      {/* Tabela de UCs */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>

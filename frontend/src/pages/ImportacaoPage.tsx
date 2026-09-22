@@ -150,7 +150,7 @@ export default function ImportacaoPage() {
         </button>
       </div>
 
-      {/* Limpar dados */}
+
       <div style={{
         background: '#fef2f2',
         border: '1px solid #fecaca',
@@ -230,7 +230,7 @@ export default function ImportacaoPage() {
         )}
       </div>
 
-      {/* Notificação de sucesso */}
+
       {sucesso && (
         <div style={{
           background: '#dcfce7',
@@ -246,7 +246,6 @@ export default function ImportacaoPage() {
         </div>
       )}
 
-      {/* Erro */}
       {erro && (
         <div style={{
           background: '#fee2e2',
@@ -295,7 +294,7 @@ export default function ImportacaoPage() {
             ))}
           </div>
 
-          {/* Erros da importação */}
+
           {resultado.erros && resultado.erros.length > 0 && (
             <div>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '8px', color: '#ef4444' }}>

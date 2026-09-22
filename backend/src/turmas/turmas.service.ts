@@ -7,14 +7,12 @@ import { UpdateTurmaDto } from './dto/update-turma.dto'
 export class TurmasService {
   constructor(private prisma: PrismaService) {}
 
-  // Retorna todas as turmas com o curso associado
   findAll() {
     return this.prisma.turma.findMany({
       include: { curso: true },
     })
   }
 
-  // Retorna uma turma pelo id
   findOne(id: number) {
     return this.prisma.turma.findUnique({
       where: { id },
@@ -22,7 +20,6 @@ export class TurmasService {
     })
   }
 
-  // Cria uma nova turma
   async create(dto: CreateTurmaDto) {
     const turmaExistente = await this.prisma.turma.findFirst({
       where: { nome: dto.nome, cursoId: dto.cursoId },
@@ -42,7 +39,6 @@ export class TurmasService {
     })
   }
 
-  // Atualiza uma turma pelo id
   update(id: number, dto: UpdateTurmaDto) {
     return this.prisma.turma.update({
       where: { id },
@@ -55,7 +51,6 @@ export class TurmasService {
     })
   }
 
-  // Apaga uma turma pelo id
   remove(id: number) {
     return this.prisma.turma.delete({
       where: { id },

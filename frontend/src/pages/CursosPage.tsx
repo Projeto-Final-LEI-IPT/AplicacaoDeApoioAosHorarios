@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-// Tipo que representa um curso
 interface Curso {
   id: number
   nome: string
@@ -21,7 +20,6 @@ export default function CursosPage() {
 
   const token = localStorage.getItem('token')
 
-  // Carrega todos os cursos quando a página é aberta
   useEffect(() => {
     fetchCursos()
   }, [])
@@ -33,6 +31,8 @@ export default function CursosPage() {
     const data = await response.json()
     setCursos(data)
   }
+
+
 
   const handleCriar = async () => {
     if (!nome || !anoLetivo) {
@@ -107,7 +107,7 @@ export default function CursosPage() {
         </div>
       )}
 
-      {/* Formulário para criar curso */}
+
       {podeEditar && (
       <div style={{
         background: '#f1f5f9',
@@ -193,7 +193,7 @@ export default function CursosPage() {
       </div>
       )}
 
-      {/* Tabela de cursos */}
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: '#f1f5f9' }}>
