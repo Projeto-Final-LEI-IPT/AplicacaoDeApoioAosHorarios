@@ -71,6 +71,7 @@ export default function HorarioPage() {
   const [anoAtual, setAnoAtual] = useState(new Date().getFullYear())
   const [semanaLabel, setSemanaLabel] = useState('')
   const [filtroEntidade, setFiltroEntidade] = useState('')
+  const [erroValidacao, setErroValidacao] = useState('')
   const containerRef = useRef<HTMLDivElement>(null)
   const painelDireitoRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
@@ -605,15 +606,15 @@ export default function HorarioPage() {
 
                     <select style={{ marginRight: '2px' }} value={tipologiaEscolhida} onChange={e => setTipologiaEscolhida(e.target.value)}>
                       <option value="">Selecione a tipologia</option>
-                      <option value="">Teórica</option>
-                      <option value="">Prática Laboratorial</option>
-                      <option value="">Teórico-Prática</option>
-                      <option value="">Seminário</option>
-                      <option value="">Trabalho de Campo</option>
-                      <option value="">Orientação Tutorial</option>
-                      <option value="">Estágio</option>
-                      <option value="">Outras</option>
-                      <option value="">Contacto</option>
+                      <option value="Teórica">Teórica</option>
+                      <option value="Prática Laboratorial">Prática Laboratorial</option>
+                      <option value="Teórico-Prática">Teórico-Prática</option>
+                      <option value="Seminário">Seminário</option>
+                      <option value="Trabalho de Campo">Trabalho de Campo</option>
+                      <option value="Orientação Tutorial">Orientação Tutorial</option>
+                      <option value="Estágio">Estágio</option>
+                      <option value="Outras">Outras</option>
+                      <option value="Contacto">Contacto</option>
                     </select>
 
                     <select style={{ marginRight: '2px' }} value={docenteEscolhido} onChange={e => setDocenteEscolhido(e.target.value)}>
@@ -630,8 +631,12 @@ export default function HorarioPage() {
                       ))}
                     </select>
 
+                    {erroValidacao && <p>{erroValidacao}</p>}
                     <button style={{ marginRight: '15px', fontFamily: 'system-ui, sans-serif', padding: '4px 4px' }} onClick={async () => {
-                      if (!dadosDrop) return
+                      if (!dadosDrop || !tipologiaEscolhida || !docenteEscolhido || !salaEscolhida){
+                        setErroValidacao('Preenche todos os campos antes de confirmar')
+                        return
+                      }
                       await fetch('http://localhost:3000/blocos', {
                         method: 'POST',
                         headers: {
@@ -655,6 +660,7 @@ export default function HorarioPage() {
                       setDocenteEscolhido('')
                       setSalaEscolhida('')
                       setDialogAberto(false)
+                      setErroValidacao('')
 
                     }}>
                       Confirmar
@@ -672,7 +678,7 @@ export default function HorarioPage() {
                       setDocenteEscolhido('')
                       setSalaEscolhida('')
                       setDialogAberto(false)
-
+                      setErroValidacao('')
 
                     }}>
                       Cancelar
