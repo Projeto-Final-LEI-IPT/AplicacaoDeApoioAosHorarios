@@ -9,54 +9,68 @@ Projeto Final — Instituto Politécnico de Tomar
 - **Tempo real:** Socket.io
 - **Infraestrutura:** Docker
 
+## Pré-requisitos
+- Node.js e npm
+- Docker (para a base de dados PostgreSQL)
 
-## Como correr a stack do projeto num só comando
 
+## Como correr o projeto
+
+### 0. Obter o código
 ```bash
-npm run dev
+git clone https://github.com/RicMFM/AplicacaoDeApoioAosHorarios.git
+cd AplicacaoDeApoioAosHorarios
 ```
 
-## Como correr o projeto por partes
-
-### 1. Instalar dependências
+### 1. Instalar dependências (na raiz do projeto)
 ```bash
 npm install
-cd backend && npm install
-cd ../frontend && npm install
+cd backend
+npm install
+cd ../frontend
+npm install
+cd ..
 ```
 
 ### 2. Configurar variáveis de ambiente
-Copiar `backend/.env.example` para `backend/.env` e ajustar os valores se necessário (os valores por omissão já correspondem ao `docker-compose.yaml` da pasta principal do projeto ou pasta root):
+Copiar `backend/.env.example` para `backend/.env`:
 ```bash
 cd backend
-cp .env.example .env
+copy .env.example .env
+cd ..
 ```
 
-### 3. Iniciar a base de dados (requer Docker)
+Os valores por omissão já correspondem ao `docker-compose.yaml` da raiz do projeto. **Antes de continuar, alterar o valor de `SEED_ADMIN_PASSWORD`** no `.env`: é a password do utilizador administrador criado no passo 5.
+
+### 3. Iniciar a base de dados (na raiz do projeto, requer Docker)
 ```bash
 docker-compose up -d
 ```
 
-### 4. Aplicar as migrações à base de dados
+### 4. Gerar o cliente Prisma e aplicar as migrações
 ```bash
 cd backend
+npx prisma generate
 npx prisma migrate deploy
 ```
 
-### 5. Criar um utilizador ADMIN inicial (opcional, mas recomendado)
+### 5. Criar o utilizador ADMIN inicial
+Ainda na pasta `backend`:
 ```bash
-cd backend
 npx prisma db seed
+cd ..
 ```
-Cria o utilizador `admin@ipt.pt`, com a password definida em `SEED_ADMIN_PASSWORD` no `.env` (ou `Admin123!` por omissão).
+Cria o utilizador `admin@ipt.pt`, com a password definida em `SEED_ADMIN_PASSWORD` no `.env`. Se não tiver sido alterada, a password é a que vem no `.env.example` (`define-uma-password-forte-aqui`).
 
-### 6. Correr tudo de uma vez (backend + frontend + Prisma Studio)
-Na raiz do projeto:
+Nota: o seed só cria o utilizador. Se o `admin@ipt.pt` já existir, o comando dá erro e a password não é alterada.
+
+### 6. Correr a aplicação (na raiz do projeto)
 ```bash
 npm run dev
 ```
+Este comando inicia a base de dados (Docker), o backend, o frontend e o Prisma Studio em simultâneo.
 
-Ou, individualmente:
+Também é possível correr cada parte individualmente:
 
 **Backend**
 ```bash
@@ -70,7 +84,7 @@ cd frontend
 npm run dev
 ```
 
-**Prisma Studio (Ambiente gráfico)**
+**Prisma Studio (ambiente gráfico da base de dados)**
 ```bash
 cd backend
 npx prisma studio
