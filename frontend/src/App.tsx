@@ -13,6 +13,7 @@ import UcsPage from './pages/UcsPage.tsx'
 import TurmasPage from './pages/TurmasPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import { AdminRoute } from './components/AdminRoute.tsx'
+import CursosPage from './pages/CursosPage.tsx'
 
 function App() {
   return (
@@ -33,7 +34,8 @@ function App() {
               <Route path="salas" element={<SalasPage />} />
               <Route path="importar" element={<ImportacaoPage />} />
               <Route path="docentes" element={<DocentesPage />} />
-              <Route path="cursos" element={<UcsPage />} />
+              <Route path="cursos" element={<CursosPage />} />
+              <Route path="ucs" element={<UcsPage/>} />
               <Route path="turmas" element={<TurmasPage />} />
               <Route path="utilizadores" element={<AdminRoute><UsersPage /></AdminRoute>} />
             </Route>

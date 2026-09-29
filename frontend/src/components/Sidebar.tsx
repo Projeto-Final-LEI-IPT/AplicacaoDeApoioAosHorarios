@@ -6,7 +6,8 @@ import { useAuth } from '../hooks/useAuth'
 const menuItems = [
   { label: 'Horários', path: '/horario' },
   { label: 'Importar Excel', path: '/importar', rolesPermitidas: ['ADMIN', 'COMISSAO_ESCOLA', 'COMISSAO_CURSO'] },
-  { label: 'Cursos e UCs', path: '/cursos' },
+  { label: 'Cursos', path: '/cursos' },
+  { label: 'Ucs', path: '/ucs' },
   { label: 'Docentes', path: '/docentes' },
   { label: 'Salas', path: '/salas' },
   { label: 'Turmas', path: '/turmas' },
