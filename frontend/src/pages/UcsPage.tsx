@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 interface UC {
   id: number
@@ -42,7 +43,7 @@ export default function UcsPage() {
   }, [])
 
   const fetchUcs = async () => {
-    const response = await fetch('http://localhost:3000/ucs', {
+    const response = await fetch(`${API_URL}/ucs`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await response.json()
@@ -51,7 +52,7 @@ export default function UcsPage() {
 
 
   const fetchCursos = async () => {
-    const response = await fetch('http://localhost:3000/cursos', {
+    const response = await fetch(`${API_URL}/cursos`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await response.json()
@@ -75,7 +76,7 @@ export default function UcsPage() {
       return
     }
 
-    const response = await fetch('http://localhost:3000/ucs', {
+    const response = await fetch(`${API_URL}/ucs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export default function UcsPage() {
 
 
   const handleApagar = async (id: number) => {
-    const response = await fetch(`http://localhost:3000/ucs/${id}`, {
+    const response = await fetch(`${API_URL}/ucs/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

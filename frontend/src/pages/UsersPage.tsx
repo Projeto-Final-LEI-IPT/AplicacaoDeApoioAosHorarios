@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { API_URL } from '../api/config'
 
 type Role = 'ADMIN' | 'COMISSAO_ESCOLA' | 'COMISSAO_CURSO' | 'DOCENTE'
 
@@ -33,7 +34,7 @@ export default function UsersPage() {
   }, [])
 
   const fetchUtilizadores = async () => {
-    const response = await fetch('http://localhost:3000/users', {
+    const response = await fetch(`${API_URL}/users`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!response.ok) {
@@ -61,7 +62,7 @@ export default function UsersPage() {
       return
     }
 
-    const response = await fetch('http://localhost:3000/users', {
+    const response = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +91,7 @@ export default function UsersPage() {
 
 
   const handleApagar = async (id: number) => {
-    const response = await fetch(`http://localhost:3000/users/${id}`, {
+    const response = await fetch(`${API_URL}/users/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

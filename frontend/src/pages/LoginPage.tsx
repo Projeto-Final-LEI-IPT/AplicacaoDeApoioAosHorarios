@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function LoginPage() {
     }
 
     try {
-    const response = await fetch('http://localhost:3000/auth/login', {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

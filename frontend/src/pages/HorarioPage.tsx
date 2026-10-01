@@ -5,6 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import { io } from 'socket.io-client'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 
 
@@ -90,10 +91,10 @@ export default function HorarioPage() {
   useEffect(() => {
     const fetchDados = async () => {
       const [ucsRes, turmasRes, salasRes, docentesRes] = await Promise.all([
-        fetch('http://localhost:3000/ucs', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('http://localhost:3000/turmas', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('http://localhost:3000/salas', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('http://localhost:3000/docentes', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API_URL}/ucs`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/turmas`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/salas`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_URL}/docentes`, { headers: { Authorization: `Bearer ${token}` } })
       ])
       setUcs(await ucsRes.json())
       setTurmas(await turmasRes.json())
@@ -105,7 +106,7 @@ export default function HorarioPage() {
 
 
   const fetchBlocos = async () => {
-    const res = await fetch('http://localhost:3000/blocos', { headers: { Authorization: `Bearer ${token}` } })
+    const res = await fetch(`${API_URL}/blocos`, { headers: { Authorization: `Bearer ${token}` } })
     const dados = await res.json()
     setBlocosGravados(dados)
   }
@@ -116,7 +117,7 @@ export default function HorarioPage() {
 
 
   useEffect(() => {
-    const socket = io('http://localhost:3000')
+    const socket = io(API_URL)
 
     socket.on('bloco:criado', (bloco) => {
       setBlocosGravados(prev => [...prev, bloco])
@@ -149,7 +150,7 @@ export default function HorarioPage() {
 
   useEffect(() => {
     const fetchFeriados = async () => {
-      const res = await fetch(`http://localhost:3000/feriados?ano=${anoAtual}`, {
+      const res = await fetch(`${API_URL}/feriados?ano=${anoAtual}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.ok) setFeriados(await res.json())
@@ -432,7 +433,7 @@ export default function HorarioPage() {
                 const novaHoraInicio = info.event.startStr.split('T')[1].slice(0, 5)
                 const novaHoraFim = info.event.endStr.split('T')[1].slice(0, 5)
 
-                fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                fetch(`${API_URL}/blocos/${blocoId}`, {
                   method: 'PUT',
                   headers: {
                     'Content-Type': 'application/json',
@@ -465,7 +466,7 @@ export default function HorarioPage() {
                     return next
                   })
                   if (blocoId) {
-                    fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                    fetch(`${API_URL}/blocos/${blocoId}`, {
                       method: 'DELETE',
                       headers: {
                         'Authorization': `Bearer ${token}`
@@ -489,7 +490,7 @@ export default function HorarioPage() {
                     return next
                   })
                   if (blocoId) {
-                    fetch(`http://localhost:3000/blocos/${blocoId}`, {
+                    fetch(`${API_URL}/blocos/${blocoId}`, {
                       method: 'DELETE',
                       headers: {
                         'Authorization': `Bearer ${token}`
@@ -637,7 +638,7 @@ export default function HorarioPage() {
                         setErroValidacao('Preenche todos os campos antes de confirmar')
                         return
                       }
-                      await fetch('http://localhost:3000/blocos', {
+                      await fetch(`${API_URL}/blocos`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',

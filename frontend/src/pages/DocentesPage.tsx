@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 interface Docente {
   id: number
@@ -34,7 +35,7 @@ export default function DocentesPage() {
   }, [])
 
   const fetchDocentes = async () => {
-    const response = await fetch('http://localhost:3000/docentes', {
+    const response = await fetch(`${API_URL}/docentes`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await response.json()
@@ -58,7 +59,7 @@ export default function DocentesPage() {
       return
     }
 
-    const response = await fetch('http://localhost:3000/docentes', {
+    const response = await fetch(`${API_URL}/docentes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function DocentesPage() {
 
 
   const handleApagar = async (id: number) => {
-    const response = await fetch(`http://localhost:3000/docentes/${id}`, {
+    const response = await fetch(`${API_URL}/docentes/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 interface Turma {
   id: number
@@ -40,7 +41,7 @@ export default function TurmasPage() {
   }, [])
 
   const fetchTurmas = async () => {
-    const response = await fetch('http://localhost:3000/turmas', {
+    const response = await fetch(`${API_URL}/turmas`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await response.json()
@@ -49,7 +50,7 @@ export default function TurmasPage() {
 
 
   const fetchCursos = async () => {
-    const response = await fetch('http://localhost:3000/cursos', {
+    const response = await fetch(`${API_URL}/cursos`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await response.json()
@@ -68,7 +69,7 @@ export default function TurmasPage() {
       return
     }
 
-    const response = await fetch('http://localhost:3000/turmas', {
+    const response = await fetch(`${API_URL}/turmas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ export default function TurmasPage() {
 
 
   const handleApagar = async (id: number) => {
-    const response = await fetch(`http://localhost:3000/turmas/${id}`, {
+    const response = await fetch(`${API_URL}/turmas/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

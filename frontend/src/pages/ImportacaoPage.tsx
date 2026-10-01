@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { API_URL } from '../api/config'
 
 export default function ImportacaoPage() {
   const { user } = useAuth()
@@ -32,7 +33,7 @@ export default function ImportacaoPage() {
     setLimpando(true)
     setErro('')
     try {
-      const response = await fetch('http://localhost:3000/importacao', {
+      const response = await fetch(`${API_URL}/importacao`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -64,7 +65,7 @@ export default function ImportacaoPage() {
     formData.append('file', ficheiro)
 
     try {
-      const response = await fetch('http://localhost:3000/importacao', {
+      const response = await fetch(`${API_URL}/importacao`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
