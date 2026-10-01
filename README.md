@@ -14,7 +14,13 @@ Projeto Final — Instituto Politécnico de Tomar
 - Docker (para a base de dados PostgreSQL)
 
 
-## Como correr o projeto
+## Aplicação online
+- **Vercel** → Frontend
+- **Render** → Backend + Base de dados
+
+Link: https://aplicacao-de-apoio-aos-horarios.vercel.app/
+
+## Aplicação Local
 
 ### 0. Obter o código
 ```bash
