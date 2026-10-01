@@ -109,6 +109,7 @@ export default function HorarioPage() {
     const res = await fetch(`${API_URL}/blocos`, { headers: { Authorization: `Bearer ${token}` } })
     const dados = await res.json()
     setBlocosGravados(dados)
+    setBlocosColocados(new Set(dados.map((b: Bloco) => `${b.uc.id}-${b.turma.id}`)))
   }
 
   useEffect(() => {
